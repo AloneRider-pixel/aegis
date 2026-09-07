@@ -15,11 +15,11 @@ psycopg2-binary==2.9.9
 redis==5.0.1
 
 # AI
-langgraph==0.1.16
-langchain-core==0.1.35
-langchain-openai==0.0.5
-openai==1.10.0
-tiktoken==0.5.2
+langgraph>=0.1.16
+langchain-core>=0.1.35
+langchain-openai>=0.0.5
+openai>=1.10.0
+tiktoken>=0.5.2
 
 # Auth
 pyjwt==2.8.0
