@@ -433,7 +433,7 @@ async def upload_document(req: DocumentCreate, user: dict = Depends(get_current_
 # ─── Evaluation ───
 
 @app.get("/api/evaluations")
-async def list_evaluations(db: AsyncSession = Depends(get_db)):
+async def list_evaluations(user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(EvaluationRun).order_by(EvaluationRun.created_at.desc()).limit(20))
     runs = result.scalars().all()
     return {
