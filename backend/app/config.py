@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 480
 
+    # Default Admin
+    default_admin_email: str = "admin@aegis.io"
+    default_admin_password: str
+
     # Rate Limiting
     rate_limit_requests: int = 100
     rate_limit_window: int = 60
