@@ -22,7 +22,7 @@ from app.services.incident_service import (
     create_incident, transition_incident, list_incidents,
     get_incident, get_incident_events, update_incident_investigation,
 )
-from app.simulator.scenarios import list_scenarios, trigger_scenario, get_scenario
+from app.simulator.scenarios import list_scenarios, trigger_scenario
 from app.simulator.telemetry import telemetry_store
 
 logging.basicConfig(level=logging.INFO)
