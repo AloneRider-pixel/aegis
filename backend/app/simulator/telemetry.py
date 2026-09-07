@@ -2,7 +2,6 @@
 Telemetry Store — in-memory store for simulated metrics, logs, and traces.
 In production, this would be backed by Prometheus, Loki, and Tempo.
 """
-import random
 import threading
 import uuid
 from collections import defaultdict
