@@ -5,25 +5,23 @@ Main FastAPI application with all API routes.
 import logging
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
 from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Header, Query
+from fastapi import Depends, FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import async_session, get_db, init_db
-from app.models import Incident, Service, User, UserRole, Document, AuditLog, EvaluationRun
+from app.models import Service, User, UserRole, Document, AuditLog, EvaluationRun
 from app.schemas import *
 from app.auth import create_token, decode_token, hash_password, verify_password
 from app.services.incident_service import (
     create_incident, transition_incident, list_incidents,
     get_incident, get_incident_events, update_incident_investigation,
 )
-from app.simulator.scenarios import list_scenarios, trigger_scenario, get_scenario
-from app.simulator.telemetry import telemetry_store
+from app.simulator.scenarios import list_scenarios, trigger_scenario
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("aegis")
