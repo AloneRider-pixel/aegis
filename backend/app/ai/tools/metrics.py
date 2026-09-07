@@ -4,7 +4,7 @@ Returns structured data for the agent to analyze.
 """
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 
 def query_metrics(
