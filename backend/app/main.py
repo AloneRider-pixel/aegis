@@ -5,7 +5,6 @@ Main FastAPI application with all API routes.
 import logging
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
 from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Header, Query
