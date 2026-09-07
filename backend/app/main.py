@@ -398,7 +398,7 @@ async def get_services(db: AsyncSession = Depends(get_db)):
 # ─── Knowledge / RAG ───
 
 @app.post("/api/knowledge/search")
-async def search_knowledge(req: KnowledgeSearchRequest, db: AsyncSession = Depends(get_db)):
+async def search_knowledge(req: KnowledgeSearchRequest, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Search the knowledge base (runbooks, docs, postmortems)."""
     result = await db.execute(
         select(Document).where(
