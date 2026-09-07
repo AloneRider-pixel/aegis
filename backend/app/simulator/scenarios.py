@@ -3,10 +3,9 @@ Failure Scenarios — predefined incident scenarios for demo and evaluation.
 Each scenario generates realistic telemetry and creates an incident.
 """
 import random
-import threading
 import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from app.simulator.telemetry import telemetry_store
 
