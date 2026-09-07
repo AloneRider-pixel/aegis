@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
         if not result.scalar_one_or_none():
             db.add(User(
                 id=uuid.uuid4(), email="admin@aegis.io",
-                hashed_password=hash_password("admin123"),
+                hashed_password=hash_password(settings.admin_password),
                 full_name="Admin User", role=UserRole.ADMIN,
             ))
         await db.commit()
