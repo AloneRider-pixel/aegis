@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 
 const API = '/api'
 
@@ -47,22 +47,26 @@ function Login({ onLogin }) {
 }
 
 // ─── Severity Badge ───
-function SeverityBadge({ severity }) {
-  const colors = { 'sev-1': 'bg-red-500/20 text-red-400', 'sev-2': 'bg-orange-500/20 text-orange-400', 'sev-3': 'bg-yellow-500/20 text-yellow-400', 'sev-4': 'bg-blue-500/20 text-blue-400' }
-  return <span className={`px-2 py-0.5 rounded text-xs font-bold ${colors[severity] || 'bg-gray-700 text-gray-300'}`}>{severity?.toUpperCase()}</span>
-}
+// ⚡ Bolt: Moved colors map outside component to prevent recreation on every render
+const severityColors = { 'sev-1': 'bg-red-500/20 text-red-400', 'sev-2': 'bg-orange-500/20 text-orange-400', 'sev-3': 'bg-yellow-500/20 text-yellow-400', 'sev-4': 'bg-blue-500/20 text-blue-400' }
+// ⚡ Bolt: Added React.memo to prevent unnecessary re-renders when props don't change
+const SeverityBadge = React.memo(function SeverityBadge({ severity }) {
+  return <span className={`px-2 py-0.5 rounded text-xs font-bold ${severityColors[severity] || 'bg-gray-700 text-gray-300'}`}>{severity?.toUpperCase()}</span>
+})
 
 // ─── Status Badge ───
-function StatusBadge({ status }) {
-  const colors = {
-    detected: 'bg-red-500/20 text-red-400', acknowledged: 'bg-orange-500/20 text-orange-400',
-    investigating: 'bg-yellow-500/20 text-yellow-400', root_cause_identified: 'bg-purple-500/20 text-purple-400',
-    awaiting_approval: 'bg-indigo-500/20 text-indigo-400', remediating: 'bg-cyan-500/20 text-cyan-400',
-    verifying: 'bg-teal-500/20 text-teal-400', resolved: 'bg-green-500/20 text-green-400',
-    closed: 'bg-gray-500/20 text-gray-400', failed: 'bg-red-700/20 text-red-400',
-  }
-  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors[status] || 'bg-gray-700 text-gray-300'}`}>{status?.replace(/_/g, ' ')}</span>
+// ⚡ Bolt: Moved colors map outside component to prevent recreation on every render
+const statusColors = {
+  detected: 'bg-red-500/20 text-red-400', acknowledged: 'bg-orange-500/20 text-orange-400',
+  investigating: 'bg-yellow-500/20 text-yellow-400', root_cause_identified: 'bg-purple-500/20 text-purple-400',
+  awaiting_approval: 'bg-indigo-500/20 text-indigo-400', remediating: 'bg-cyan-500/20 text-cyan-400',
+  verifying: 'bg-teal-500/20 text-teal-400', resolved: 'bg-green-500/20 text-green-400',
+  closed: 'bg-gray-500/20 text-gray-400', failed: 'bg-red-700/20 text-red-400',
 }
+// ⚡ Bolt: Added React.memo to prevent unnecessary re-renders when props don't change
+const StatusBadge = React.memo(function StatusBadge({ status }) {
+  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusColors[status] || 'bg-gray-700 text-gray-300'}`}>{status?.replace(/_/g, ' ')}</span>
+})
 
 // ─── Dashboard Page ───
 function DashboardPage({ user }) {
@@ -75,8 +79,22 @@ function DashboardPage({ user }) {
       .catch(() => setLoading(false))
   }, [])
 
-  const active = incidents.filter(i => !['resolved', 'closed'].includes(i.status)).length
-  const sev1 = incidents.filter(i => i.severity === 'sev-1' && !['resolved', 'closed'].includes(i.status)).length
+  // ⚡ Bolt: Consolidated 3 O(N) array filters into a single O(N) loop and wrapped in useMemo
+  // to avoid recalculating stats on unrelated re-renders (e.g. loading state changes)
+  const { active, sev1, aiInvestigations } = useMemo(() => {
+    let activeCount = 0;
+    let sev1Count = 0;
+    let aiCount = 0;
+    for (let i = 0; i < incidents.length; i++) {
+      const inc = incidents[i];
+      if (inc.status !== 'resolved' && inc.status !== 'closed') {
+        activeCount++;
+        if (inc.severity === 'sev-1') sev1Count++;
+      }
+      if (inc.probable_root_cause) aiCount++;
+    }
+    return { active: activeCount, sev1: sev1Count, aiInvestigations: aiCount };
+  }, [incidents]);
 
   return (
     <div>
@@ -96,7 +114,7 @@ function DashboardPage({ user }) {
         </div>
         <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
           <p className="text-gray-400 text-sm">AI Investigations</p>
-          <p className="text-3xl font-bold text-blue-400 mt-1">{incidents.filter(i => i.probable_root_cause).length}</p>
+          <p className="text-3xl font-bold text-blue-400 mt-1">{aiInvestigations}</p>
         </div>
       </div>
       <h3 className="text-lg font-semibold text-white mb-4">Recent Incidents</h3>
