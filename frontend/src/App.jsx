@@ -12,9 +12,12 @@ function Login({ onLogin }) {
   const [email, setEmail] = useState('admin@aegis.io')
   const [password, setPassword] = useState('admin123')
   const [error, setError] = useState('')
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    setIsLoggingIn(true)
     try {
       const res = await fetch(`${API}/auth/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -25,6 +28,7 @@ function Login({ onLogin }) {
       localStorage.setItem('token', data.access_token)
       onLogin(data)
     } catch (err) { setError(err.message) }
+    finally { setIsLoggingIn(false) }
   }
 
   return (
@@ -36,10 +40,18 @@ function Login({ onLogin }) {
           <p className="text-gray-400 text-sm mt-1">AI Incident Response Platform</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 bg-gray-900 p-6 rounded-xl border border-gray-800">
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white" required />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white" required />
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Sign In</button>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+            <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@aegis.io" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={isLoggingIn} />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password</label>
+            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={isLoggingIn} />
+          </div>
+          {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
+          <button type="submit" disabled={isLoggingIn} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isLoggingIn ? 'Signing In...' : 'Sign In'}
+          </button>
         </form>
       </div>
     </div>
