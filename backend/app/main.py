@@ -37,9 +37,12 @@ async def lifespan(app: FastAPI):
     # Seed default services and admin user
     async with async_session() as db:
         # Create services
-        for svc_name in ["checkout-service", "order-service", "api-gateway", "payment-service", "product-service"]:
-            result = await db.execute(select(Service).where(Service.name == svc_name))
-            if not result.scalar_one_or_none():
+        service_names = ["checkout-service", "order-service", "api-gateway", "payment-service", "product-service"]
+        result = await db.execute(select(Service.name).where(Service.name.in_(service_names)))
+        existing_services = set(result.scalars().all())
+
+        for svc_name in service_names:
+            if svc_name not in existing_services:
                 db.add(Service(id=uuid.uuid4(), name=svc_name, team="platform", environment="production"))
 
         # Create admin user
