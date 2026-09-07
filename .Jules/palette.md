@@ -1,0 +1,3 @@
+## 2026-09-07 - Login Form Accessibility Improvement
+**Learning:** Using `isLoggingIn` state is critical for disabling inputs/buttons, providing visual feedback, and preventing duplicate submissions during async actions in React forms. In addition, associating labels properly and using `role="alert"` for errors is crucial for basic keyboard/screen-reader accessibility on generic form components.
+**Action:** Ensure all standard login/registration forms implement these accessibility defaults as standard practice for basic inclusive UX design.
