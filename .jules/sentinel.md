@@ -10,3 +10,7 @@
 **Vulnerability:** CI workflow failed to start the postgres container because the `pg_isready` healthcheck command executes as the root user by default inside the container, but the database was provisioned for `POSTGRES_USER: test`, leading to repeated `FATAL: role "root" does not exist` connection errors.
 **Learning:** Container healthchecks in CI that run commands without explicit users will attempt to use the active shell user context (usually root).
 **Prevention:** Always explicitly define the database user in CI service health checks (e.g. `--health-cmd "pg_isready -U test"`) to ensure the test service initializes correctly.
+## 2024-05-24 - CI Database Health Check Failure (Database Missing)
+**Vulnerability:** Even after specifying the Postgres user in the CI healthcheck (`pg_isready -U test`), the healthcheck continued to fail with `FATAL: database "test" does not exist`. By default, `pg_isready` assumes the target database matches the username unless explicitly overridden.
+**Learning:** `pg_isready` will connect to a default database matching the username if `-d` is not specified.
+**Prevention:** Always explicitly define both the database user and the target database in CI service health checks (e.g. `--health-cmd "pg_isready -U test -d test_db"`) to match the container's environment variables (`POSTGRES_USER` and `POSTGRES_DB`).
