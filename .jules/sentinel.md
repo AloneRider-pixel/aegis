@@ -1,0 +1,4 @@
+## 2024-05-18 - Missing Authentication on Read Endpoints
+**Vulnerability:** Found multiple `GET` endpoints in `backend/app/main.py` (`/api/incidents`, `/api/incidents/{incident_id}`, `/api/simulator/scenarios`, `/api/services`) that lacked authentication dependency, exposing sensitive incident and platform data publicly.
+**Learning:** Developers properly secured mutation endpoints (`POST`) with `Depends(get_current_user)` but forgot to apply the same security to read queries (`GET`). This is a common pattern where queries are perceived as "safer" and auth is overlooked.
+**Prevention:** Always verify authentication dependencies are consistently applied across both read (GET) and write (POST/PUT/DELETE) routes. Consider using global dependencies or route dependencies at the router level for authenticated API scopes rather than applying them per-route.
