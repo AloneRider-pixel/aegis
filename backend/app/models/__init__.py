@@ -79,8 +79,8 @@ class Incident(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(500), nullable=False)
     description = Column(Text)
-    severity = Column(Enum(Severity), nullable=False)
-    status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED)
+    severity = Column(Enum(Severity), nullable=False, index=True)
+    status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED, index=True)
     service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"))
     environment = Column(String(50), default="production")
     source = Column(String(100))  # "auto_detected", "manual", "simulator"
@@ -112,7 +112,7 @@ class Incident(Base):
     resolution_summary = Column(Text)
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
