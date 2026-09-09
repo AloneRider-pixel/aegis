@@ -6,7 +6,7 @@ import random
 import threading
 import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from app.simulator.telemetry import telemetry_store
 
