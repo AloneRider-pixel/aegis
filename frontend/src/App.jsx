@@ -220,7 +220,15 @@ function IncidentsPage() {
         <div className="space-y-2">
           {incidents.map(inc => (
             <div key={inc.id} onClick={() => setSelected(inc)}
-              className={`p-4 rounded-xl border cursor-pointer ${selected?.id === inc.id ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelected(inc);
+                }
+              }}
+              className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${selected?.id === inc.id ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
               <div className="flex justify-between items-start">
                 <SeverityBadge severity={inc.severity} />
                 <StatusBadge status={inc.status} />
