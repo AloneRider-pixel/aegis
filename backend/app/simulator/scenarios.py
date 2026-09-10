@@ -3,10 +3,9 @@ Failure Scenarios — predefined incident scenarios for demo and evaluation.
 Each scenario generates realistic telemetry and creates an incident.
 """
 import random
-import threading
-import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Dict, List, Optional, Any
+import uuid
 
 from app.simulator.telemetry import telemetry_store
 
@@ -357,6 +356,3 @@ def _generate_traces(scenario_id: str, service: str, now: datetime):
                 duration_ms=duration + random.randint(-100, 100),
                 status=status,
             )
-
-
-import uuid
