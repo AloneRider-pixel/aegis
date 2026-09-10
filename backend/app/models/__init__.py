@@ -1,6 +1,5 @@
 """Database models for the Aegis platform."""
 import uuid
-from datetime import datetime
 from enum import Enum as PyEnum
 
 from sqlalchemy import (
@@ -75,12 +74,14 @@ class Service(Base):
 
 class Incident(Base):
     __tablename__ = "incidents"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(500), nullable=False)
     description = Column(Text)
-    severity = Column(Enum(Severity), nullable=False)
-    status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED)
+    # ⚡ Bolt Optimization: Added index=True to severity, status, and created_at to speed up list_incidents filtering and sorting
+    severity = Column(Enum(Severity), nullable=False, index=True)
+    status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED, index=True)
     service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"))
     environment = Column(String(50), default="production")
     source = Column(String(100))  # "auto_detected", "manual", "simulator"
@@ -112,7 +113,8 @@ class Incident(Base):
     resolution_summary = Column(Text)
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True for desc(Incident.created_at) queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
@@ -124,9 +126,11 @@ class Incident(Base):
 
 class IncidentEvent(Base):
     __tablename__ = "incident_events"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    incident_id = Column(UUID(as_uuid=True), ForeignKey("incidents.id"), nullable=False)
+    # ⚡ Bolt Optimization: Added index=True because Postgres doesn't auto-index foreign keys. This speeds up get_incident_events.
+    incident_id = Column(UUID(as_uuid=True), ForeignKey("incidents.id"), nullable=False, index=True)
     event_type = Column(String(100), nullable=False)  # "status_change", "ai_step", "tool_call", "remediation"
     previous_status = Column(String(50))
     new_status = Column(String(50))
