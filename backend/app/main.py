@@ -122,6 +122,7 @@ async def get_incidents(
     severity: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
+    user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     incidents, total = await list_incidents(db, status=status, severity=severity, limit=limit, offset=offset)
@@ -165,7 +166,11 @@ async def create_new_incident(
 
 
 @app.get("/api/incidents/{incident_id}")
-async def get_single_incident(incident_id: str, db: AsyncSession = Depends(get_db)):
+async def get_single_incident(
+    incident_id: str,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
     incident = await get_incident(db, incident_id)
     if not incident:
         raise HTTPException(status_code=404, detail="Incident not found")
@@ -348,7 +353,7 @@ async def execute_remediation(
 # ─── Simulator Routes ───
 
 @app.get("/api/simulator/scenarios")
-async def get_scenarios():
+async def get_scenarios(user: dict = Depends(get_current_user)):
     return {"scenarios": list_scenarios()}
 
 
@@ -384,7 +389,7 @@ async def trigger_failure_scenario(
 # ─── Services ───
 
 @app.get("/api/services")
-async def get_services(db: AsyncSession = Depends(get_db)):
+async def get_services(user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Service))
     services = result.scalars().all()
     return {
