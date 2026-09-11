@@ -34,8 +34,8 @@ jobs:
         run: ruff check app/ || true
       - name: Test
         working-directory: backend
-        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key }
-        run: pytest tests/ -v --tb=short
+        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, DEFAULT_ADMIN_PASSWORD: test-password }
+        run: PYTHONPATH=. python -m pytest tests/ -v --tb=short
 
   build:
     needs: test
