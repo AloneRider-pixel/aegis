@@ -46,6 +46,7 @@ class UserRole(str, PyEnum):
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False, index=True)
@@ -60,6 +61,7 @@ class User(Base):
 
 class Service(Base):
     __tablename__ = "services"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False, unique=True)
@@ -75,13 +77,14 @@ class Service(Base):
 
 class Incident(Base):
     __tablename__ = "incidents"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(500), nullable=False)
     description = Column(Text)
     severity = Column(Enum(Severity), nullable=False)
     status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED)
-    service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"))
+    service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)
     environment = Column(String(50), default="production")
     source = Column(String(100))  # "auto_detected", "manual", "simulator"
 
@@ -92,7 +95,7 @@ class Incident(Base):
     resolved_at = Column(DateTime(timezone=True))
 
     # Assignment
-    assigned_to = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    assigned_to = Column(UUID(as_uuid=True), ForeignKey("users.id"), index=True)
 
     # Symptoms
     symptoms = Column(JSON, default=list)
@@ -106,7 +109,7 @@ class Incident(Base):
 
     # Remediation
     recommended_remediation = Column(JSON)
-    approved_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    approved_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), index=True)
     approved_at = Column(DateTime(timezone=True))
     remediation_result = Column(JSON)
     resolution_summary = Column(Text)
@@ -124,9 +127,10 @@ class Incident(Base):
 
 class IncidentEvent(Base):
     __tablename__ = "incident_events"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    incident_id = Column(UUID(as_uuid=True), ForeignKey("incidents.id"), nullable=False)
+    incident_id = Column(UUID(as_uuid=True), ForeignKey("incidents.id"), nullable=False, index=True)
     event_type = Column(String(100), nullable=False)  # "status_change", "ai_step", "tool_call", "remediation"
     previous_status = Column(String(50))
     new_status = Column(String(50))
@@ -141,6 +145,7 @@ class IncidentEvent(Base):
 
 class Document(Base):
     __tablename__ = "documents"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(500), nullable=False)
@@ -157,9 +162,10 @@ class Document(Base):
 
 class DocumentChunk(Base):
     __tablename__ = "document_chunks"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False, index=True)
     content = Column(Text, nullable=False)
     chunk_index = Column(Integer, nullable=False)
     metadata_ = Column("metadata", JSON, default=dict)
@@ -170,6 +176,7 @@ class DocumentChunk(Base):
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True))
@@ -185,6 +192,7 @@ class AuditLog(Base):
 
 class EvaluationRun(Base):
     __tablename__ = "evaluation_runs"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     dataset_name = Column(String(100), nullable=False)
