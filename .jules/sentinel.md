@@ -1,0 +1,4 @@
+## 2023-10-24 - Missing Authentication on Read Endpoints
+**Vulnerability:** Found multiple sensitive `GET` API endpoints (e.g., `/api/incidents`, `/api/services`, `/api/simulator/scenarios`) that lacked authentication checks (`Depends(get_current_user)`), allowing unauthorized access to data.
+**Learning:** In FastAPI, relying on a database dependency like `Depends(get_db)` does not implicitly protect an endpoint. Authentication dependencies must be explicitly declared on *every* route requiring authorization, even read-only endpoints. The pattern in this codebase was to protect `POST`/`PUT` endpoints but sometimes omit the auth dependency on corresponding `GET` endpoints.
+**Prevention:** Always verify that every endpoint processing sensitive data or actions explicitly includes `user: dict = Depends(get_current_user)` in its signature.
