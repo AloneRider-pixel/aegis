@@ -1,7 +1,7 @@
 """
 Runbooks Tool — searches the RAG knowledge base for relevant runbooks.
 """
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 def search_runbook(

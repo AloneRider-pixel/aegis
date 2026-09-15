@@ -1,7 +1,8 @@
 """
 Logs Tool — searches the telemetry log store.
 """
-from typing import Any, Dict
+from datetime import datetime, timedelta
+from typing import Any, Dict, List
 
 
 def search_logs(

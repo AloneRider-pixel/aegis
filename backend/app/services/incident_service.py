@@ -3,12 +3,12 @@ Incident Service — business logic for incident lifecycle management.
 """
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import select, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Incident, IncidentEvent, IncidentStatus, Severity
+from app.models import Incident, IncidentEvent, IncidentStatus, Severity, Service
 
 # Valid state transitions
 VALID_TRANSITIONS = {
