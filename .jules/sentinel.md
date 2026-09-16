@@ -1,3 +1,7 @@
+## 2024-09-11 - Add missing authentication to backend endpoints
+**Vulnerability:** Several backend API endpoints (`/api/incidents`, `/api/incidents/{incident_id}`, `/api/simulator/scenarios`, `/api/services`) were missing authentication checks.
+**Learning:** FastAPI `Depends` is required to enforce authentication on each endpoint individually; without it, the endpoints are publicly accessible to anyone, which is a critical security vulnerability.
+**Prevention:** Always ensure that `Depends(get_current_user)` (or an equivalent authentication dependency) is explicitly added to the signature of all endpoints that require authorization.
 ## 2023-10-24 - Missing Authentication on Read Endpoints
 **Vulnerability:** Found multiple sensitive `GET` API endpoints (e.g., `/api/incidents`, `/api/services`, `/api/simulator/scenarios`) that lacked authentication checks (`Depends(get_current_user)`), allowing unauthorized access to data.
 **Learning:** In FastAPI, relying on a database dependency like `Depends(get_db)` does not implicitly protect an endpoint. Authentication dependencies must be explicitly declared on *every* route requiring authorization, even read-only endpoints. The pattern in this codebase was to protect `POST`/`PUT` endpoints but sometimes omit the auth dependency on corresponding `GET` endpoints.
