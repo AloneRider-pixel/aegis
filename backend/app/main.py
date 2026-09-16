@@ -165,6 +165,16 @@ async def create_new_incident(
 
 @app.get("/api/incidents/{incident_id}")
 async def get_single_incident(incident_id: str, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_single_incident(
+    incident_id: str,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+async def get_single_incident(incident_id: str, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_single_incident(
+    incident_id: str,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
     incident = await get_incident(db, incident_id)
     if not incident:
         raise HTTPException(status_code=404, detail="Incident not found")
@@ -383,6 +393,10 @@ async def trigger_failure_scenario(
 # ─── Services ───
 
 @app.get("/api/services")
+async def get_services(
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
 async def get_services(user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Service))
     services = result.scalars().all()
