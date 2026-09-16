@@ -12,9 +12,12 @@ function Login({ onLogin }) {
   const [email, setEmail] = useState('admin@aegis.io')
   const [password, setPassword] = useState('admin123')
   const [error, setError] = useState('')
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    setIsLoggingIn(true)
     try {
       const res = await fetch(`${API}/auth/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -25,6 +28,7 @@ function Login({ onLogin }) {
       localStorage.setItem('token', data.access_token)
       onLogin(data)
     } catch (err) { setError(err.message) }
+    finally { setIsLoggingIn(false) }
   }
 
   return (
@@ -36,10 +40,55 @@ function Login({ onLogin }) {
           <p className="text-gray-400 text-sm mt-1">AI Incident Response Platform</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 bg-gray-900 p-6 rounded-xl border border-gray-800">
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white" required />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white" required />
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Sign In</button>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email <span className="text-red-500">*</span></label>
+            <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@company.com" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password <span className="text-red-500">*</span></label>
+            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          </div>
+          {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
+          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none">Sign In</button>
+            <label htmlFor="email" className="sr-only">Email</label>
+            <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
+          </div>
+          <div>
+            <label htmlFor="password" className="sr-only">Password</label>
+            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required />
+          </div>
+          {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
+          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">Sign In</button>
+            <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+          </div>
+          <div>
+            <label htmlFor="password" className="sr-only">Password</label>
+            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+          </div>
+          {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
+          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">Sign In</button>
+          {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
+          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">Sign In</button>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+            <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@aegis.io" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={isLoggingIn} />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password</label>
+            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={isLoggingIn} />
+          </div>
+          {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
+          <button type="submit" disabled={isLoggingIn} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isLoggingIn ? 'Signing In...' : 'Sign In'}
+          </button>
+            <label htmlFor="email" className="sr-only">Email</label>
+            <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          </div>
+          <div>
+            <label htmlFor="password" className="sr-only">Password</label>
+            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
+          </div>
+          {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
+          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-offset-2 focus:ring-offset-gray-900">Sign In</button>
         </form>
       </div>
     </div>
@@ -47,22 +96,26 @@ function Login({ onLogin }) {
 }
 
 // ─── Severity Badge ───
-function SeverityBadge({ severity }) {
-  const colors = { 'sev-1': 'bg-red-500/20 text-red-400', 'sev-2': 'bg-orange-500/20 text-orange-400', 'sev-3': 'bg-yellow-500/20 text-yellow-400', 'sev-4': 'bg-blue-500/20 text-blue-400' }
-  return <span className={`px-2 py-0.5 rounded text-xs font-bold ${colors[severity] || 'bg-gray-700 text-gray-300'}`}>{severity?.toUpperCase()}</span>
-}
+// OPTIMIZATION: Moved static configuration outside component to avoid re-allocation on every render.
+const SEVERITY_COLORS = { 'sev-1': 'bg-red-500/20 text-red-400', 'sev-2': 'bg-orange-500/20 text-orange-400', 'sev-3': 'bg-yellow-500/20 text-yellow-400', 'sev-4': 'bg-blue-500/20 text-blue-400' }
+// OPTIMIZATION: Wrapped in React.memo() to prevent unnecessary re-renders when parent lists update.
+const SeverityBadge = React.memo(function SeverityBadge({ severity }) {
+  return <span className={`px-2 py-0.5 rounded text-xs font-bold ${SEVERITY_COLORS[severity] || 'bg-gray-700 text-gray-300'}`}>{severity?.toUpperCase()}</span>
+})
 
 // ─── Status Badge ───
-function StatusBadge({ status }) {
-  const colors = {
-    detected: 'bg-red-500/20 text-red-400', acknowledged: 'bg-orange-500/20 text-orange-400',
-    investigating: 'bg-yellow-500/20 text-yellow-400', root_cause_identified: 'bg-purple-500/20 text-purple-400',
-    awaiting_approval: 'bg-indigo-500/20 text-indigo-400', remediating: 'bg-cyan-500/20 text-cyan-400',
-    verifying: 'bg-teal-500/20 text-teal-400', resolved: 'bg-green-500/20 text-green-400',
-    closed: 'bg-gray-500/20 text-gray-400', failed: 'bg-red-700/20 text-red-400',
-  }
-  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors[status] || 'bg-gray-700 text-gray-300'}`}>{status?.replace(/_/g, ' ')}</span>
+// OPTIMIZATION: Moved static configuration outside component to avoid re-allocation on every render.
+const STATUS_COLORS = {
+  detected: 'bg-red-500/20 text-red-400', acknowledged: 'bg-orange-500/20 text-orange-400',
+  investigating: 'bg-yellow-500/20 text-yellow-400', root_cause_identified: 'bg-purple-500/20 text-purple-400',
+  awaiting_approval: 'bg-indigo-500/20 text-indigo-400', remediating: 'bg-cyan-500/20 text-cyan-400',
+  verifying: 'bg-teal-500/20 text-teal-400', resolved: 'bg-green-500/20 text-green-400',
+  closed: 'bg-gray-500/20 text-gray-400', failed: 'bg-red-700/20 text-red-400',
 }
+// OPTIMIZATION: Wrapped in React.memo() to prevent unnecessary re-renders when parent lists update.
+const StatusBadge = React.memo(function StatusBadge({ status }) {
+  return <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[status] || 'bg-gray-700 text-gray-300'}`}>{status?.replace(/_/g, ' ')}</span>
+})
 
 // ─── Dashboard Page ───
 function DashboardPage({ user }) {
@@ -75,8 +128,20 @@ function DashboardPage({ user }) {
       .catch(() => setLoading(false))
   }, [])
 
-  const active = incidents.filter(i => !['resolved', 'closed'].includes(i.status)).length
-  const sev1 = incidents.filter(i => i.severity === 'sev-1' && !['resolved', 'closed'].includes(i.status)).length
+  // OPTIMIZATION: Memoized dashboard metrics and reduced 3 O(n) array loops (.filter) into a single O(n) loop to minimize computation time on re-renders.
+  const { active, sev1, aiInvestigations } = React.useMemo(() => {
+    let _active = 0;
+    let _sev1 = 0;
+    let _ai = 0;
+    for (const i of incidents) {
+      if (i.status !== 'resolved' && i.status !== 'closed') {
+        _active++;
+        if (i.severity === 'sev-1') _sev1++;
+      }
+      if (i.probable_root_cause) _ai++;
+    }
+    return { active: _active, sev1: _sev1, aiInvestigations: _ai };
+  }, [incidents])
 
   return (
     <div>
@@ -96,7 +161,7 @@ function DashboardPage({ user }) {
         </div>
         <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
           <p className="text-gray-400 text-sm">AI Investigations</p>
-          <p className="text-3xl font-bold text-blue-400 mt-1">{incidents.filter(i => i.probable_root_cause).length}</p>
+          <p className="text-3xl font-bold text-blue-400 mt-1">{aiInvestigations}</p>
         </div>
       </div>
       <h3 className="text-lg font-semibold text-white mb-4">Recent Incidents</h3>
@@ -220,7 +285,15 @@ function IncidentsPage() {
         <div className="space-y-2">
           {incidents.map(inc => (
             <div key={inc.id} onClick={() => setSelected(inc)}
-              className={`p-4 rounded-xl border cursor-pointer ${selected?.id === inc.id ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelected(inc);
+                }
+              }}
+              className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${selected?.id === inc.id ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
               <div className="flex justify-between items-start">
                 <SeverityBadge severity={inc.severity} />
                 <StatusBadge status={inc.status} />
