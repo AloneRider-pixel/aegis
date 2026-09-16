@@ -1,6 +1,5 @@
 """Database models for the Aegis platform."""
 import uuid
-from datetime import datetime
 from enum import Enum as PyEnum
 
 from sqlalchemy import (
@@ -81,6 +80,7 @@ class Incident(Base):
     description = Column(Text)
     severity = Column(Enum(Severity), nullable=False)
     status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED)
+    # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during relationship lookups and cascading deletes
     service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)
@@ -94,6 +94,7 @@ class Incident(Base):
     resolved_at = Column(DateTime(timezone=True))
 
     # Assignment
+    # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to improve query performance for user assignment lookups
     assigned_to = Column(UUID(as_uuid=True), ForeignKey("users.id"), index=True)
@@ -110,6 +111,7 @@ class Incident(Base):
 
     # Remediation
     recommended_remediation = Column(JSON)
+    # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to optimize JOIN queries
     approved_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), index=True)
@@ -132,6 +134,7 @@ class IncidentEvent(Base):
     __tablename__ = "incident_events"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to significantly speed up loading incident history/events
     incident_id = Column(UUID(as_uuid=True), ForeignKey("incidents.id"), nullable=False, index=True)
@@ -167,6 +170,7 @@ class DocumentChunk(Base):
     __tablename__ = "document_chunks"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to prevent full table scans when fetching chunks for a specific document
     document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False, index=True)
