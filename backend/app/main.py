@@ -41,11 +41,11 @@ async def lifespan(app: FastAPI):
                 db.add(Service(id=uuid.uuid4(), name=svc_name, team="platform", environment="production"))
 
         # Create admin user
-        result = await db.execute(select(User).where(User.email == "admin@aegis.io"))
+        result = await db.execute(select(User).where(User.email == settings.default_admin_email))
         if not result.scalar_one_or_none():
             db.add(User(
-                id=uuid.uuid4(), email="admin@aegis.io",
-                hashed_password=hash_password("admin123"),
+                id=uuid.uuid4(), email=settings.default_admin_email,
+                hashed_password=hash_password(settings.default_admin_password),
                 full_name="Admin User", role=UserRole.ADMIN,
             ))
         await db.commit()
@@ -120,6 +120,7 @@ async def get_incidents(
     severity: Optional[str] = None,
     limit: int = 50,
     offset: int = 0,
+    user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     incidents, total = await list_incidents(db, status=status, severity=severity, limit=limit, offset=offset)
@@ -163,7 +164,17 @@ async def create_new_incident(
 
 
 @app.get("/api/incidents/{incident_id}")
-async def get_single_incident(incident_id: str, db: AsyncSession = Depends(get_db)):
+async def get_single_incident(incident_id: str, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_single_incident(
+    incident_id: str,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+async def get_single_incident(incident_id: str, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_single_incident(
+    incident_id: str,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
     incident = await get_incident(db, incident_id)
     if not incident:
         raise HTTPException(status_code=404, detail="Incident not found")
@@ -346,7 +357,7 @@ async def execute_remediation(
 # ─── Simulator Routes ───
 
 @app.get("/api/simulator/scenarios")
-async def get_scenarios():
+async def get_scenarios(user: dict = Depends(get_current_user)):
     return {"scenarios": list_scenarios()}
 
 
@@ -382,7 +393,11 @@ async def trigger_failure_scenario(
 # ─── Services ───
 
 @app.get("/api/services")
-async def get_services(db: AsyncSession = Depends(get_db)):
+async def get_services(
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+async def get_services(user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Service))
     services = result.scalars().all()
     return {
@@ -396,8 +411,8 @@ async def get_services(db: AsyncSession = Depends(get_db)):
 # ─── Knowledge / RAG ───
 
 @app.post("/api/knowledge/search")
-async def search_knowledge(req: KnowledgeSearchRequest, db: AsyncSession = Depends(get_db)):
-    """Search the knowledge base (runbooks, docs, postmortems)."""
+async def search_knowledge(req: KnowledgeSearchRequest, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Search the knowledge base (runbooks, docs, postmortems). REQUIRES AUTHENTICATION."""
     result = await db.execute(
         select(Document).where(
             Document.content.ilike(f"%{req.query}%")
@@ -431,7 +446,8 @@ async def upload_document(req: DocumentCreate, user: dict = Depends(get_current_
 # ─── Evaluation ───
 
 @app.get("/api/evaluations")
-async def list_evaluations(db: AsyncSession = Depends(get_db)):
+async def list_evaluations(user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """List evaluation runs. REQUIRES AUTHENTICATION."""
     result = await db.execute(select(EvaluationRun).order_by(EvaluationRun.created_at.desc()).limit(20))
     runs = result.scalars().all()
     return {
@@ -488,7 +504,8 @@ async def run_evaluation(req: EvaluationRequest, user: dict = Depends(get_curren
 # ─── Audit ───
 
 @app.get("/api/audit")
-async def get_audit_logs(limit: int = 50, db: AsyncSession = Depends(get_db)):
+async def get_audit_logs(limit: int = 50, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Get audit logs. REQUIRES AUTHENTICATION."""
     result = await db.execute(select(AuditLog).order_by(AuditLog.created_at.desc()).limit(limit))
     logs = result.scalars().all()
     return {
