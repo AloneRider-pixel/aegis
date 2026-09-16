@@ -5,18 +5,17 @@ Flow:
   START → UNDERSTAND → COLLECT_EVIDENCE → ANALYZE → HYPOTHESIZE →
   VALIDATE → ROOT_CAUSE → REMEDIATION → [HUMAN_APPROVAL] → VERIFY → POSTMORTEM
 """
-import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict
 
 from langgraph.graph import END, START, StateGraph
 
 from app.ai.agent.state import AgentState
-from app.ai.tools.metrics import query_metrics, get_service_health
+from app.ai.tools.metrics import query_metrics
 from app.ai.tools.logs import search_logs
 from app.ai.tools.traces import inspect_trace
-from app.ai.tools.deployments import get_recent_deployments, get_deployment_diff
+from app.ai.tools.deployments import get_recent_deployments
 from app.ai.tools.runbooks import search_runbook, search_previous_incidents
 
 logger = logging.getLogger(__name__)
