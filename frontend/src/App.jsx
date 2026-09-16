@@ -48,6 +48,8 @@ function Login({ onLogin }) {
             <label htmlFor="password" className="sr-only">Password</label>
             <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required />
           </div>
+          {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
+          <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">Sign In</button>
           {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
           <button type="submit" className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">Sign In</button>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
