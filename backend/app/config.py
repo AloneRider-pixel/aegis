@@ -51,7 +51,6 @@ class Settings(BaseSettings):
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 480
-    admin_password: str = "admin123"
 
     # Default Admin (Security: Load from environment, no hardcoded defaults)
     default_admin_email: str = "admin@aegis.io"
