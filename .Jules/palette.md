@@ -1,3 +1,6 @@
-## 2024-09-10 - Login Form Accessibility Improvement
-**Learning:** React login forms in this template lack proper ARIA alerts for errors and accessible labels linked via `htmlFor`. Default Tailwind inputs are also missing clear focus states.
-**Action:** When working on forms, proactively add explicit `<label>` elements linked to input `id`s, ensure error messages have `role="alert"`, and apply `focus:ring` classes for keyboard navigation.
+## 2024-09-12 - Form Accessibility Needs Explicit Labels
+**Learning:** Even when inputs have descriptive placeholders, screen readers still need explicit `label` elements tied via `htmlFor` and `id` to function correctly.
+**Action:** Always add `sr-only` labels if visible labels conflict with the design, ensuring forms are structurally accessible without altering aesthetics.
+## 2026-09-07 - Login Form Accessibility Improvement
+**Learning:** Using `isLoggingIn` state is critical for disabling inputs/buttons, providing visual feedback, and preventing duplicate submissions during async actions in React forms. In addition, associating labels properly and using `role="alert"` for errors is crucial for basic keyboard/screen-reader accessibility on generic form components.
+**Action:** Ensure all standard login/registration forms implement these accessibility defaults as standard practice for basic inclusive UX design.
