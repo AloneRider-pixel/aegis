@@ -1,9 +1,7 @@
 """
 Aegis Configuration — all settings from environment variables.
 """
-from typing import Optional
 from pydantic_settings import BaseSettings
-from pydantic import Field
 
 
 class Settings(BaseSettings):
@@ -11,7 +9,7 @@ class Settings(BaseSettings):
     app_name: str = "aegis"
     app_env: str = "development"
     debug: bool = True
-    secret_key: str = "change-me"
+    secret_key: str
 
     # Database
     postgres_host: str = "localhost"
@@ -50,9 +48,13 @@ class Settings(BaseSettings):
     max_investigation_seconds: int = 300
 
     # Auth
-    jwt_secret_key: str = "jwt-secret-change-me"
+    jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 480
+
+    # Default Admin (Security: Load from environment, no hardcoded defaults)
+    default_admin_email: str = "admin@aegis.io"
+    default_admin_password: str  # MUST be set via environment variable
 
     # Rate Limiting
     rate_limit_requests: int = 100
