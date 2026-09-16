@@ -1,3 +1,6 @@
+## 2025-05-18 - PostgreSQL Foreign Key Missing Index Bottleneck
+**Learning:** PostgreSQL does not automatically index foreign keys like MySQL does. In incident response apps, fetching an incident timeline (e.g. `IncidentEvent` by `incident_id`) is highly frequent and will cause O(N) sequential scans without explicit indices.
+**Action:** Always verify that foreign keys in SQLAlchemy (`ForeignKey`) on frequently-queried relations include `index=True` explicitly.
 ## 2025-02-18 - SQLAlchemy PostgreSQL Foreign Key Missing Index
 **Learning:** PostgreSQL does not automatically index foreign keys created by SQLAlchemy models. Traversing relationships caused full sequential scans.
 **Action:** Always ensure `index=True` is explicitly specified for `ForeignKey` relationships in SQLAlchemy when building heavily relation-queried endpoints.

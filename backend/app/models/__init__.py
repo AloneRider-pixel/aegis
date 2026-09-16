@@ -81,6 +81,10 @@ class Incident(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(500), nullable=False)
     description = Column(Text)
+    # ⚡ Bolt Optimization: Added index=True to severity, status, and created_at to speed up list_incidents filtering and sorting
+    severity = Column(Enum(Severity), nullable=False, index=True)
+    status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED, index=True)
+    service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"))
     severity = Column(Enum(Severity), nullable=False)
     status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED)
     # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
@@ -123,7 +127,8 @@ class Incident(Base):
     resolution_summary = Column(Text)
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True for desc(Incident.created_at) queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
@@ -138,6 +143,7 @@ class IncidentEvent(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # ⚡ Bolt Optimization: Added index=True because Postgres doesn't auto-index foreign keys. This speeds up get_incident_events.
     # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to significantly speed up loading incident history/events
