@@ -1,7 +1,7 @@
 """
 Agent State — defines the data flowing through the investigation graph.
 """
-from typing import Annotated, Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional, TypedDict
 
 
 class AgentState(TypedDict):

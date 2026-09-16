@@ -14,6 +14,11 @@ jobs:
         image: pgvector/pgvector:pg16
         env: { POSTGRES_DB: test_db, POSTGRES_USER: test, POSTGRES_PASSWORD: test }
         ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U test -d test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         options: --health-cmd "pg_isready -U test -d test_db" --health-interval 10s --health-timeout 5s --health-retries 5
       redis:
         image: redis:7
@@ -31,7 +36,25 @@ jobs:
       - name: Test
         working-directory: backend
         env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, PYTHONPATH: . }
+        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, POSTGRES_USER: test, POSTGRES_PASSWORD: test, POSTGRES_DB: test_db, DEFAULT_ADMIN_PASSWORD: test-password, PYTHONPATH: "." }
+        env: { POSTGRES_HOST: localhost, POSTGRES_USER: test, POSTGRES_PASSWORD: test, POSTGRES_DB: test_db, DEFAULT_ADMIN_PASSWORD: test-password, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, PYTHONPATH: . }
+        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, DEFAULT_ADMIN_PASSWORD: test-password, PYTHONPATH: . }
+        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, PYTHONPATH: ., DEFAULT_ADMIN_PASSWORD: test }
+        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, PYTHONPATH: ., DEFAULT_ADMIN_PASSWORD: test-password, POSTGRES_USER: test, POSTGRES_PASSWORD: test, POSTGRES_DB: test_db }
+        env:
+          POSTGRES_HOST: localhost
+          REDIS_HOST: localhost
+          OPENAI_API_KEY: test-key
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+          DEFAULT_ADMIN_PASSWORD: test-password
+          PYTHONPATH: .
+        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, PYTHONPATH: ., DEFAULT_ADMIN_PASSWORD: test-password, POSTGRES_USER: test, POSTGRES_PASSWORD: test, POSTGRES_DB: test_db }
+        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, POSTGRES_USER: test, POSTGRES_PASSWORD: test, POSTGRES_DB: test_db, DEFAULT_ADMIN_PASSWORD: test-password, PYTHONPATH: . }
         run: pytest tests/ -v --tb=short
+        env: { POSTGRES_HOST: localhost, REDIS_HOST: localhost, OPENAI_API_KEY: test-key, DEFAULT_ADMIN_PASSWORD: test-password }
+        run: PYTHONPATH=. python -m pytest tests/ -v --tb=short
 
   build:
     needs: test
