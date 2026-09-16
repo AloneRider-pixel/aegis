@@ -1,3 +1,7 @@
+## 2025-02-28 - Missing Authentication on Sensitive API Endpoints
+**Vulnerability:** Found unauthenticated endpoints `/api/incidents`, `/api/incidents/{incident_id}`, `/api/services`, and `/api/simulator/scenarios` exposing internal operational data.
+**Learning:** These endpoints likely lacked authentication during initial development for ease of testing or oversight. Relying solely on `Depends(get_db)` does not implicitly protect an endpoint; authentication dependencies must be explicitly declared on every route.
+**Prevention:** Always verify that every sensitive route is explicitly protected by an authentication dependency, like `Depends(get_current_user)`, and validate access controls during route definition.
 ## 2025-02-23 - Missing Authentication on Sensitive Read Endpoints
 **Vulnerability:** Several backend read endpoints (`/api/incidents`, `/api/incidents/{incident_id}`, `/api/services`, `/api/simulator/scenarios`) lacked authentication (`Depends(get_current_user)`), allowing unauthorized users to retrieve sensitive system state, incident data, and infrastructure information.
 **Learning:** The application had correctly secured mutating operations (POST endpoints) but failed to consistently apply the same security posture to non-mutating (GET) endpoints that exposed sensitive telemetry and incident data. This represents a gap in defense-in-depth, treating read access as inherently safer than write access.
