@@ -1,8 +1,7 @@
 """
 Deployments Tool — checks recent deployments and their diffs.
 """
-from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict
 from app.simulator.telemetry import telemetry_store
 
 
