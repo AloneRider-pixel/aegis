@@ -1,0 +1,10 @@
+line-length = 100
+
+[lint]
+# Existing API module and schema package use a deliberate star-export pattern;
+# keep these narrow exceptions local so the rest of the codebase remains linted.
+[lint.per-file-ignores]
+"app/main.py" = ["F403", "F405", "E741"]
+"app/ai/agent/graph.py" = ["E741"]
+"app/schemas/__init__.py" = ["F401"]
+"app/services/incident_service.py" = ["F841"]
