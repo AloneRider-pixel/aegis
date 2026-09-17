@@ -4,14 +4,14 @@ Returns structured data for the agent to analyze.
 """
 import random
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any
 
 
 def query_metrics(
     service_name: str,
     metric_name: str = "all",
     time_range_minutes: int = 30,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Query metrics for a service.
 
@@ -70,7 +70,7 @@ def query_metrics(
     }
 
 
-def get_service_health(service_name: str) -> Dict[str, Any]:
+def get_service_health(service_name: str) -> dict[str, Any]:
     """Get current health status of a service."""
     from app.simulator.telemetry import telemetry_store
 

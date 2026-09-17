@@ -1,14 +1,15 @@
 """
 Deployments Tool — checks recent deployments and their diffs.
 """
-from typing import Any, Dict
+from typing import Any
+
 from app.simulator.telemetry import telemetry_store
 
 
 def get_recent_deployments(
-    service_name: str = None,
+    service_name: str | None = None,
     hours: int = 24,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get recent deployments, optionally filtered by service."""
     deployments = telemetry_store.get_deployments(service_name=service_name, hours=hours)
 
@@ -21,7 +22,7 @@ def get_recent_deployments(
     }
 
 
-def get_deployment_diff(deployment_id: str) -> Dict[str, Any]:
+def get_deployment_diff(deployment_id: str) -> dict[str, Any]:
     """Get the diff/changes for a specific deployment."""
     diff = telemetry_store.get_deployment_diff(deployment_id)
     return diff or {"deployment_id": deployment_id, "changes": [], "message": "No diff available"}

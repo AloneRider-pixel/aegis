@@ -3,9 +3,8 @@ Incident Service — business logic for incident lifecycle management.
 """
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional
 
-from sqlalchemy import select, func, desc
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Incident, IncidentEvent, IncidentStatus, Severity
@@ -29,9 +28,9 @@ async def create_incident(
     db: AsyncSession,
     title: str,
     severity: str,
-    service_id: str = None,
-    description: str = None,
-    symptoms: List[str] = None,
+    service_id: str | None = None,
+    description: str | None = None,
+    symptoms: list[str] | None = None,
     source: str = "manual",
     environment: str = "production",
 ) -> Incident:
@@ -70,7 +69,7 @@ async def transition_incident(
     incident_id: str,
     new_status: str,
     actor: str = "system",
-    details: Dict = None,
+    details: dict | None = None,
 ) -> Incident:
     """Transition incident to a new status with validation."""
     result = await db.execute(select(Incident).where(Incident.id == uuid.UUID(incident_id)))
@@ -114,8 +113,8 @@ async def transition_incident(
 
 async def list_incidents(
     db: AsyncSession,
-    status: str = None,
-    severity: str = None,
+    status: str | None = None,
+    severity: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> tuple:
@@ -143,13 +142,13 @@ async def list_incidents(
     return incidents, total
 
 
-async def get_incident(db: AsyncSession, incident_id: str) -> Optional[Incident]:
+async def get_incident(db: AsyncSession, incident_id: str) -> Incident | None:
     """Get a single incident by ID."""
     result = await db.execute(select(Incident).where(Incident.id == uuid.UUID(incident_id)))
     return result.scalar_one_or_none()
 
 
-async def get_incident_events(db: AsyncSession, incident_id: str) -> List[IncidentEvent]:
+async def get_incident_events(db: AsyncSession, incident_id: str) -> list[IncidentEvent]:
     """Get audit events for an incident."""
     result = await db.execute(
         select(IncidentEvent)
@@ -162,12 +161,12 @@ async def get_incident_events(db: AsyncSession, incident_id: str) -> List[Incide
 async def update_incident_investigation(
     db: AsyncSession,
     incident_id: str,
-    root_cause: str = None,
-    confidence: float = None,
-    evidence: List[Dict] = None,
-    alternative_hypotheses: List[Dict] = None,
-    recommended_remediation: Dict = None,
-    investigation_trace: List[Dict] = None,
+    root_cause: str | None = None,
+    confidence: float | None = None,
+    evidence: list[dict] | None = None,
+    alternative_hypotheses: list[dict] | None = None,
+    recommended_remediation: dict | None = None,
+    investigation_trace: list[dict] | None = None,
 ):
     """Update incident with AI investigation results."""
     result = await db.execute(select(Incident).where(Incident.id == uuid.UUID(incident_id)))
@@ -192,7 +191,7 @@ async def update_incident_investigation(
     return incident
 
 
-def search_similar_incidents(query: str, severity: str = None, top_k: int = 5) -> List[Dict]:
+def search_similar_incidents(query: str, severity: str | None = None, top_k: int = 5) -> list[dict]:
     """
     Search previous incidents for similar patterns.
     Uses keyword matching against titles, root causes, and symptoms.

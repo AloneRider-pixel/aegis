@@ -6,7 +6,6 @@ import threading
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 
 
 class TelemetryStore:
@@ -14,12 +13,12 @@ class TelemetryStore:
 
     def __init__(self):
         self._lock = threading.Lock()
-        self._metrics: Dict[str, List[Dict]] = defaultdict(list)
-        self._logs: List[Dict] = []
-        self._traces: List[Dict] = []
-        self._deployments: List[Dict] = []
-        self._active_scenario: Optional[str] = None
-        self._scenario_start: Optional[datetime] = None
+        self._metrics: dict[str, list[dict]] = defaultdict(list)
+        self._logs: list[dict] = []
+        self._traces: list[dict] = []
+        self._deployments: list[dict] = []
+        self._active_scenario: str | None = None
+        self._scenario_start: datetime | None = None
 
     def reset(self):
         """Clear all telemetry data."""
@@ -33,7 +32,7 @@ class TelemetryStore:
 
     # ─── Metrics ───
 
-    def add_metric(self, service: str, metric_name: str, value: float, timestamp: datetime = None):
+    def add_metric(self, service: str, metric_name: str, value: float, timestamp: datetime | None = None):
         ts = timestamp or datetime.utcnow()
         with self._lock:
             self._metrics[f"{service}:{metric_name}"].append({
@@ -43,7 +42,7 @@ class TelemetryStore:
                 "metric": metric_name,
             })
 
-    def get_metrics(self, service: str, time_range_minutes: int = 30) -> Dict[str, List]:
+    def get_metrics(self, service: str, time_range_minutes: int = 30) -> dict[str, list]:
         cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
         result = {}
         with self._lock:
@@ -62,8 +61,8 @@ class TelemetryStore:
         service: str,
         level: str,
         message: str,
-        timestamp: datetime = None,
-        trace_id: str = None,
+        timestamp: datetime | None = None,
+        trace_id: str | None = None,
     ):
         ts = timestamp or datetime.utcnow()
         with self._lock:
@@ -77,12 +76,12 @@ class TelemetryStore:
 
     def get_logs(
         self,
-        service_name: str = None,
-        level: str = None,
-        query: str = None,
+        service_name: str | None = None,
+        level: str | None = None,
+        query: str | None = None,
         time_range_minutes: int = 30,
         limit: int = 50,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
         with self._lock:
             results = []
@@ -114,11 +113,11 @@ class TelemetryStore:
 
     def get_traces(
         self,
-        trace_id: str = None,
-        service_name: str = None,
+        trace_id: str | None = None,
+        service_name: str | None = None,
         slow_only: bool = True,
         time_range_minutes: int = 30,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
         with self._lock:
             results = []
@@ -137,7 +136,7 @@ class TelemetryStore:
 
     # ─── Deployments ───
 
-    def add_deployment(self, service: str, version: str, status: str = "success", changes: List[str] = None):
+    def add_deployment(self, service: str, version: str, status: str = "success", changes: list[str] | None = None):
         with self._lock:
             self._deployments.append({
                 "deployment_id": uuid.uuid4().hex[:12],
@@ -149,7 +148,7 @@ class TelemetryStore:
                 "recent": True,
             })
 
-    def get_deployments(self, service_name: str = None, hours: int = 24) -> List[Dict]:
+    def get_deployments(self, service_name: str | None = None, hours: int = 24) -> list[dict]:
         cutoff = datetime.utcnow() - timedelta(hours=hours)
         with self._lock:
             results = []
@@ -162,7 +161,7 @@ class TelemetryStore:
                 results.append(dep)
             return results
 
-    def get_deployment_diff(self, deployment_id: str) -> Optional[Dict]:
+    def get_deployment_diff(self, deployment_id: str) -> dict | None:
         with self._lock:
             for dep in self._deployments:
                 if dep["deployment_id"] == deployment_id:
@@ -176,7 +175,7 @@ class TelemetryStore:
 
     # ─── Service Health ───
 
-    def get_service_health(self, service: str) -> Optional[Dict]:
+    def get_service_health(self, service: str) -> dict | None:
         metrics = self.get_metrics(service, time_range_minutes=5)
         if not metrics:
             return None
@@ -203,7 +202,7 @@ class TelemetryStore:
             self._active_scenario = scenario_id
             self._scenario_start = datetime.utcnow()
 
-    def get_active_scenario(self) -> Optional[str]:
+    def get_active_scenario(self) -> str | None:
         return self._active_scenario
 
 

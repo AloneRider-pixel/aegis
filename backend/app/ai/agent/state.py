@@ -1,7 +1,7 @@
 """
 Agent State — defines the data flowing through the investigation graph.
 """
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, TypedDict
 
 
 class AgentState(TypedDict):
@@ -13,38 +13,38 @@ class AgentState(TypedDict):
     incident_description: str
     severity: str
     service_name: str
-    symptoms: List[str]
+    symptoms: list[str]
 
     # Investigation phases
     current_phase: str  # understand, collect_evidence, analyze, hypothesize, recommend
 
     # Evidence collected
-    metrics_data: List[Dict[str, Any]]
-    logs_data: List[Dict[str, Any]]
-    traces_data: List[Dict[str, Any]]
-    deployment_data: List[Dict[str, Any]]
-    runbook_results: List[Dict[str, Any]]
-    historical_incidents: List[Dict[str, Any]]
+    metrics_data: list[dict[str, Any]]
+    logs_data: list[dict[str, Any]]
+    traces_data: list[dict[str, Any]]
+    deployment_data: list[dict[str, Any]]
+    runbook_results: list[dict[str, Any]]
+    historical_incidents: list[dict[str, Any]]
 
     # Analysis
-    hypotheses: List[Dict[str, Any]]
-    root_cause: Optional[str]
+    hypotheses: list[dict[str, Any]]
+    root_cause: str | None
     confidence: float
-    evidence_chain: List[Dict[str, Any]]
+    evidence_chain: list[dict[str, Any]]
 
     # Remediation
-    recommended_remediation: Optional[Dict[str, Any]]
+    recommended_remediation: dict[str, Any] | None
     remediation_approved: bool
     remediation_executed: bool
-    remediation_result: Optional[Dict[str, Any]]
+    remediation_result: dict[str, Any] | None
 
     # Trace
-    investigation_trace: List[Dict[str, Any]]
-    tool_calls: List[Dict[str, Any]]
-    token_usage: Dict[str, int]
+    investigation_trace: list[dict[str, Any]]
+    tool_calls: list[dict[str, Any]]
+    token_usage: dict[str, int]
     total_cost_usd: float
 
     # Safety
     iteration: int
     max_iterations: int
-    errors: List[str]
+    errors: list[str]

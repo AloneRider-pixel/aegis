@@ -2,8 +2,8 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID
-from pydantic import BaseModel, Field
 
+from pydantic import BaseModel, Field
 
 # ─── Auth ───
 
@@ -14,7 +14,7 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    user: Dict[str, Any]
+    user: dict[str, Any]
 
 class UserResponse(BaseModel):
     id: str
@@ -27,50 +27,50 @@ class UserResponse(BaseModel):
 
 class IncidentCreate(BaseModel):
     title: str
-    description: Optional[str] = None
+    description: str | None = None
     severity: str = "sev-3"
-    service_id: Optional[str] = None
+    service_id: str | None = None
     environment: str = "production"
     source: str = "manual"
-    symptoms: List[str] = []
+    symptoms: list[str] = []
 
 class IncidentResponse(BaseModel):
     id: str
     title: str
-    description: Optional[str]
+    description: str | None
     severity: str
     status: str
-    service_id: Optional[str]
+    service_id: str | None
     environment: str
     source: str
-    detected_at: Optional[datetime]
-    acknowledged_at: Optional[datetime]
-    investigation_started_at: Optional[datetime]
-    resolved_at: Optional[datetime]
-    assigned_to: Optional[str]
-    symptoms: List[str]
-    probable_root_cause: Optional[str]
-    confidence: Optional[float]
-    evidence: List[Dict[str, Any]]
-    alternative_hypotheses: List[Dict[str, Any]]
-    recommended_remediation: Optional[Dict[str, Any]]
-    approved_by: Optional[str]
-    resolution_summary: Optional[str]
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
+    detected_at: datetime | None
+    acknowledged_at: datetime | None
+    investigation_started_at: datetime | None
+    resolved_at: datetime | None
+    assigned_to: str | None
+    symptoms: list[str]
+    probable_root_cause: str | None
+    confidence: float | None
+    evidence: list[dict[str, Any]]
+    alternative_hypotheses: list[dict[str, Any]]
+    recommended_remediation: dict[str, Any] | None
+    approved_by: str | None
+    resolution_summary: str | None
+    created_at: datetime | None
+    updated_at: datetime | None
 
 class IncidentListResponse(BaseModel):
-    incidents: List[IncidentResponse]
+    incidents: list[IncidentResponse]
     total: int
 
 class IncidentEventResponse(BaseModel):
     id: str
     incident_id: str
     event_type: str
-    previous_status: Optional[str]
-    new_status: Optional[str]
+    previous_status: str | None
+    new_status: str | None
     actor: str
-    details: Dict[str, Any]
+    details: dict[str, Any]
     created_at: datetime
 
 
@@ -82,11 +82,11 @@ class InvestigationStart(BaseModel):
 class InvestigationResponse(BaseModel):
     incident_id: str
     status: str
-    root_cause: Optional[str]
-    confidence: Optional[float]
-    evidence: List[Dict[str, Any]]
-    investigation_trace: List[Dict[str, Any]]
-    recommended_remediation: Optional[Dict[str, Any]]
+    root_cause: str | None
+    confidence: float | None
+    evidence: list[dict[str, Any]]
+    investigation_trace: list[dict[str, Any]]
+    recommended_remediation: dict[str, Any] | None
 
 
 # ─── Remediation ───
@@ -94,7 +94,7 @@ class InvestigationResponse(BaseModel):
 class RemediationApproval(BaseModel):
     incident_id: str
     approved: bool = True
-    notes: Optional[str] = None
+    notes: str | None = None
 
 class RemediationExecute(BaseModel):
     incident_id: str
@@ -107,17 +107,17 @@ class DocumentCreate(BaseModel):
     title: str
     content: str
     document_type: str = "runbook"
-    service: Optional[str] = None
-    environment: Optional[str] = None
+    service: str | None = None
+    environment: str | None = None
 
 class KnowledgeSearchRequest(BaseModel):
     query: str
-    service: Optional[str] = None
-    document_type: Optional[str] = None
+    service: str | None = None
+    document_type: str | None = None
     top_k: int = 5
 
 class KnowledgeSearchResponse(BaseModel):
-    results: List[Dict[str, Any]]
+    results: list[dict[str, Any]]
     total: int
 
 
@@ -150,7 +150,7 @@ class EvaluationResponse(BaseModel):
     hallucination_rate: float
     avg_latency_seconds: float
     total_cost_usd: float
-    results: List[Dict[str, Any]]
+    results: list[dict[str, Any]]
 
 
 # ─── Service ───
@@ -158,11 +158,11 @@ class EvaluationResponse(BaseModel):
 class ServiceResponse(BaseModel):
     id: str
     name: str
-    description: Optional[str]
-    team: Optional[str]
+    description: str | None
+    team: str | None
     environment: str
     health_status: str
-    last_check_at: Optional[datetime]
+    last_check_at: datetime | None
 
 
 # ─── Health ───
