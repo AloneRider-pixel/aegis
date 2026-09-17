@@ -322,9 +322,15 @@ async def execute_remediation(
     db: AsyncSession = Depends(get_db),
 ):
     """Execute remediation (dry_run=True by default for safety)."""
+    if user.get("role") not in ("incident_manager", "admin"):
+        raise HTTPException(status_code=403, detail="Insufficient permissions to execute remediation")
+
     incident = await get_incident(db, incident_id)
     if not incident:
         raise HTTPException(status_code=404, detail="Incident not found")
+
+    if incident.status.value != "remediating":
+        raise HTTPException(status_code=409, detail="Remediation must be approved before execution")
 
     remediation = incident.recommended_remediation
     if not remediation:
