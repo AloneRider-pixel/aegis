@@ -10,7 +10,7 @@ function getHeaders() {
 // ─── Login Page ───
 function Login({ onLogin }) {
   const [email, setEmail] = useState('admin@aegis.io')
-  const [password, setPassword] = useState('admin123')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoggingIn, setIsLoggingIn] = useState(false)
 
