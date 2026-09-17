@@ -126,16 +126,21 @@ async def list_incidents(
     if severity:
         query = query.where(Incident.severity == severity)
 
-    count_query = select(func.count()).select_from(Incident)
-    if status:
-        count_query = count_query.where(Incident.status == status)
-    if severity:
-        count_query = count_query.where(Incident.severity == severity)
-
-    total = (await db.execute(count_query)).scalar() or 0
+    # ⚡ Bolt Optimization: Execute main query first and skip count query if total is obvious
     result = await db.execute(query.offset(offset).limit(limit))
-    incidents = result.scalars().all()
-    return list(incidents), total
+    incidents = list(result.scalars().all())
+
+    if offset == 0 and len(incidents) < limit:
+        total = len(incidents)
+    else:
+        count_query = select(func.count()).select_from(Incident)
+        if status:
+            count_query = count_query.where(Incident.status == status)
+        if severity:
+            count_query = count_query.where(Incident.severity == severity)
+        total = (await db.execute(count_query)).scalar() or 0
+
+    return incidents, total
 
 
 async def get_incident(db: AsyncSession, incident_id: str) -> Optional[Incident]:
