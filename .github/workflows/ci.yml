@@ -68,6 +68,8 @@ jobs:
           REDIS_PORT: 6379
           OPENAI_API_KEY: test-key
           DEFAULT_ADMIN_PASSWORD: test-password
+          SECRET_KEY: test-secret-key
+          JWT_SECRET_KEY: test-jwt-secret-key
           PYTHONPATH: .
         run: python -m pytest tests/ -v --tb=short --cov=app --cov-report=term-missing --cov-report=xml
 
