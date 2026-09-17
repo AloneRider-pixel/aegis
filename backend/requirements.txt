@@ -37,5 +37,6 @@ numpy==1.26.3
 pytest==7.4.4
 pytest-asyncio==0.23.3
 pytest-cov==4.1.0
+pytest-mock==3.14.0
 ruff==0.1.14
 mypy==1.8.0
