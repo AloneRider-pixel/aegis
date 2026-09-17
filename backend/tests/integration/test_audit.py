@@ -6,7 +6,6 @@ from app.models import UserRole
 
 @pytest.mark.asyncio
 async def test_get_audit_logs_unauthenticated():
-    # Override database dependency for unauthenticated to avoid db calls
     from app.main import get_db
     app.dependency_overrides[get_db] = lambda: None
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -16,8 +15,7 @@ async def test_get_audit_logs_unauthenticated():
     app.dependency_overrides.clear()
 
 @pytest.mark.asyncio
-async def test_get_audit_logs_authenticated(mocker):
-    # Mock db response
+async def test_get_audit_logs_authenticated():
     from unittest.mock import AsyncMock, MagicMock
     mock_db = AsyncMock()
     mock_result = MagicMock()
