@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("aegis")
 
 
-# ─── Lifespan ───
+# ─── Lifespan ──��
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -167,20 +167,15 @@ async def create_new_incident(
 
 
 @app.get("/api/incidents/{incident_id}")
-async def get_single_incident(incident_id: str, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 async def get_single_incident(
     incident_id: str,
     user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-async def get_single_incident(incident_id: str, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-async def get_single_incident(
-    incident_id: str,
-    user: dict = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
 ):
     incident = await get_incident(db, incident_id)
     if not incident:
         raise HTTPException(status_code=404, detail="Incident not found")
+
     events = await get_incident_events(db, incident_id)
     return {
         "incident": {
@@ -400,7 +395,6 @@ async def get_services(
     user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-async def get_services(user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Service))
     services = result.scalars().all()
     return {
@@ -526,3 +520,4 @@ async def get_audit_logs(limit: int = 50, user: dict = Depends(get_current_user)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    

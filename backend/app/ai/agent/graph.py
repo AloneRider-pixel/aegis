@@ -97,7 +97,6 @@ async def analyze_evidence(state: AgentState) -> Dict:
     service = state.get("service_name", "unknown")
     symptoms = state.get("symptoms", [])
     logs = state.get("logs_data", [])
-    metrics = state.get("metrics_data", {})
     trace = state.get("investigation_trace", [])
 
     # Build query from symptoms and log patterns
@@ -140,9 +139,7 @@ async def analyze_evidence(state: AgentState) -> Dict:
 
 async def form_hypotheses(state: AgentState) -> Dict:
     """Form root-cause hypotheses from evidence."""
-    symptoms = state.get("symptoms", [])
     logs = state.get("logs_data", [])
-    metrics = state.get("metrics_data", {})
     deployments = state.get("deployment_data", [])
     runbooks = state.get("runbook_results", [])
     trace = state.get("investigation_trace", [])
@@ -244,7 +241,6 @@ async def validate_hypothesis(state: AgentState) -> Dict:
     """Validate the top hypothesis against additional evidence."""
     hypotheses = state.get("hypotheses", [])
     logs = state.get("logs_data", [])
-    metrics = state.get("metrics_data", {})
     trace = state.get("investigation_trace", [])
 
     if not hypotheses:
