@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     # Application
     app_name: str = "aegis"
     app_env: str = "development"
-    debug: bool = True
+    debug: bool = False
     secret_key: str
 
     # Database
@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 480
 
-    # Default Admin (Security: Load from environment, no hardcoded defaults)
+    # Default Admin (load from environment; no hardcoded password)
     default_admin_email: str = "admin@aegis.io"
     default_admin_password: str
 
