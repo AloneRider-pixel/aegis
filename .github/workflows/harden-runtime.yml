@@ -1,0 +1,59 @@
+name: Harden Aegis runtime
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch unsafe runtime defaults
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          main_path = Path('backend/app/main.py')
+          main = main_path.read_text(encoding='utf-8')
+          old_cors = '    allow_origins=["*"],'
+          new_cors = '    allow_origins=[origin.strip() for origin in settings.cors_allowed_origins.split(",") if origin.strip()],'
+          if old_cors in main:
+              main = main.replace(old_cors, new_cors, 1)
+          elif new_cors not in main:
+              raise SystemExit('Expected CORS configuration not found')
+          main_path.write_text(main, encoding='utf-8')
+
+          app_path = Path('frontend/src/App.jsx')
+          app = app_path.read_text(encoding='utf-8')
+          old_password = "useState('admin123')"
+          if old_password in app:
+              app = app.replace(old_password, "useState('')", 1)
+          app_path.write_text(app, encoding='utf-8')
+          PY
+
+      - name: Validate Python syntax
+        run: python -m py_compile backend/app/config.py backend/app/main.py
+
+      - name: Install frontend and verify build
+        working-directory: frontend
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.15.9 --activate
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      - name: Commit hardening changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/app/main.py frontend/src/App.jsx
+          if git diff --cached --quiet; then
+            echo "No hardening changes needed"
+            exit 0
+          fi
+          git commit -m "security: harden runtime defaults"
+          git push
