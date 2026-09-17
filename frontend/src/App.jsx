@@ -194,7 +194,7 @@ function SimulatorPage() {
               <span className="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs">{s.service}</span>
             </div>
             <button onClick={() => trigger(s.id)} disabled={triggering === s.id}
-              className="mt-3 w-full py-2 bg-red-600/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-600/30 disabled:opacity-50">
+              className="mt-3 w-full py-2 bg-red-600/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
               {triggering === s.id ? 'Triggering...' : '⚡ Trigger Scenario'}
             </button>
           </div>
@@ -265,13 +265,13 @@ function IncidentsPage() {
               {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
               {inc.status === 'detected' && (
                 <button onClick={(e) => { e.stopPropagation(); investigate(inc.id) }} disabled={investigating}
-                  className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30">
+                  className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                   {investigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
                 </button>
               )}
               {inc.status === 'awaiting_approval' && (
                 <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }}
-                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30">
+                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
                   ✅ Approve Remediation
                 </button>
               )}
@@ -372,12 +372,12 @@ export default function App() {
         <nav className="flex gap-1 bg-gray-800 rounded-lg p-1">
           {[['dashboard', '📊 Dashboard'], ['incidents', '🚨 Incidents'], ['simulator', '⚡ Simulator']].map(([id, label]) => (
             <button key={id} onClick={() => setPage(id)}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${page === id ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}>
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${page === id ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}>
               {label}
             </button>
           ))}
         </nav>
-        <button onClick={logout} className="text-sm text-gray-400 hover:text-white">Logout</button>
+        <button onClick={logout} className="text-sm text-gray-400 hover:text-white rounded px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500">Logout</button>
       </header>
 
       {/* Content */}
