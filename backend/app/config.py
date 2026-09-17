@@ -54,11 +54,14 @@ class Settings(BaseSettings):
 
     # Default Admin (Security: Load from environment, no hardcoded defaults)
     default_admin_email: str = "admin@aegis.io"
-    default_admin_password: str  # MUST be set via environment variable
+    default_admin_password: str
 
     # Rate Limiting
     rate_limit_requests: int = 100
     rate_limit_window: int = 60
+
+    # CORS — comma-separated origins; keep wildcard out of production.
+    cors_allowed_origins: str = "http://localhost:3000"
 
     # Frontend
     frontend_url: str = "http://localhost:3000"
