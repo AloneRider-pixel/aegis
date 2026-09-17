@@ -1,187 +1,199 @@
 # 🛡️ Aegis
 
-**AI-Powered Production Reliability & Incident Response Platform**
+[![CI](https://github.com/AloneRider-pixel/aegis/actions/workflows/ci.yml/badge.svg)](https://github.com/AloneRider-pixel/aegis/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/AloneRider-pixel/aegis/actions/workflows/codeql.yml/badge.svg)](https://github.com/AloneRider-pixel/aegis/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Aegis monitors applications, detects anomalies, investigates incidents using an AI agent with tool access, retrieves relevant runbooks via RAG, identifies root causes with evidence-backed reasoning, and recommends remediation — requiring human approval before executing any impactful action.
+**AI-powered production reliability and incident-response platform.**
 
----
+Aegis investigates production incidents by combining telemetry, operational knowledge, and an AI agent with controlled tool access. It builds an evidence chain, proposes remediation, and requires explicit human approval before impactful actions are executed.
 
-## Problem
+> **Portfolio focus:** AI agents + RAG + backend engineering + observability + reliability engineering + human-in-the-loop safety.
 
-When production systems fail, engineers face a painful cycle:
-1. Alert fires → scramble to understand what broke
-2. Check 5+ dashboards, grep through logs, trace through services
-3. Search runbooks (if they exist), ask colleagues
-4. Form hypothesis → test → iterate
-5. Finally fix → write postmortem (often skipped)
+## Why Aegis
 
-This can take tens of minutes or longer per incident, and the same diagnostic patterns repeat.
-
-## Solution
-
-Aegis automates the investigation phase:
+Production incidents often require engineers to correlate metrics, logs, traces, deployments, runbooks, and historical incidents before forming a root-cause hypothesis. Aegis automates the investigation workflow while keeping remediation approval under human control.
 
 ```text
-Failure Detected → AI Agent Investigates → Root Cause Identified →
-Remediation Recommended → Human Approved → Fix Executed → Postmortem Generated
+Failure detected
+      ↓
+Incident created
+      ↓
+AI agent investigates
+      ├── metrics
+      ├── logs
+      ├── traces
+      ├── deployments
+      ├── runbooks (RAG)
+      └── incident history
+      ↓
+Evidence-backed hypothesis
+      ↓
+Remediation recommendation
+      ↓
+Human approval
+      ↓
+Execution + audit trail
+      ↓
+Postmortem
 ```
-
-The AI agent can query metrics, logs, traces, deployments, and runbooks while building an evidence chain. Impactful remediation is gated behind human approval, and investigations are auditable.
 
 ## Architecture
 
 ```mermaid
 graph TB
-    subgraph Frontend["React Dashboard"]
-        UI[Operations Dashboard]
-    end
+    UI[React Operations Dashboard]
+    API[FastAPI API]
+    INC[Incident Service]
+    AGENT[LangGraph Investigation Agent]
+    TOOLS[Telemetry + Deployment + Runbook Tools]
+    RAG[RAG Knowledge Service]
+    PG[(PostgreSQL + pgvector)]
+    REDIS[(Redis)]
+    SIM[Failure Simulator]
+    TEL[Telemetry Store]
+    LLM[LLM Provider]
 
-    subgraph API["FastAPI Backend"]
-        GW[API Gateway + Auth]
-        IS[Incident Service]
-        KS[Knowledge Service]
-        SS[Simulator Service]
-    end
-
-    subgraph AI["AI Investigation Engine"]
-        LG[LangGraph Agent]
-        subgraph Tools["Agent Tools"]
-            T1[Query Metrics]
-            T2[Search Logs]
-            T3[Inspect Traces]
-            T4[Check Deployments]
-            T5[Search Runbooks]
-            T6[Query History]
-        end
-        RAG[RAG Pipeline]
-        LLM[LLM Provider]
-    end
-
-    subgraph Data["Data Layer"]
-        PG[(PostgreSQL + pgvector)]
-        RD[(Redis)]
-    end
-
-    subgraph Telemetry["Observability"]
-        SIM[Failure Simulator]
-        TEL[Telemetry Store]
-    end
-
-    UI --> GW
-    GW --> IS & KS & SS
-    IS --> LG
-    LG --> Tools & RAG
-    Tools --> TEL & PG
+    UI --> API
+    API --> INC
+    INC --> AGENT
+    AGENT --> TOOLS
+    AGENT --> RAG
+    AGENT --> LLM
+    TOOLS --> TEL
+    TOOLS --> PG
     RAG --> PG
-    LLM --> LG
-    IS --> PG & RD
+    INC --> PG
+    INC --> REDIS
     SIM --> TEL
 ```
 
-## Demo Scenario
+## Engineering highlights
 
-**"Database Connection Exhaustion After Deployment"**
+### AI investigation engine
+- LangGraph state machine with explicit investigation phases.
+- Tool access for metrics, logs, traces, deployments, runbooks, and incident history.
+- Evidence-backed findings with confidence information.
+- Prompt-injection defenses for untrusted operational content.
+- Human approval gate before impactful remediation.
 
-1. Deployment simulation increases DB connections
-2. Metrics detect connection saturation
-3. Error rate and latency rise
-4. Aegis creates an incident
-5. The AI agent investigates metrics, logs, deployments, runbooks, and history
-6. It produces a root-cause hypothesis with supporting evidence
-7. It recommends a remediation
-8. A human approves the action before execution
+### RAG knowledge system
+- Ingests runbooks, postmortems, and operational documents.
+- Chunking → embedding → pgvector storage.
+- Hybrid retrieval with reranking.
+- Metadata filtering by service, document type, and environment.
 
-The simulator provides reproducible synthetic telemetry for demos and development.
+### Reliability and safety
+- Incident lifecycle with validated state transitions.
+- Dry-run and execution modes for remediation.
+- Risk assessment and rollback strategy.
+- Audit trail for incident and remediation actions.
+- JWT authentication, role-based access, rate limiting, and input validation.
 
-## Technology Stack
+### Failure simulation
+Aegis includes reproducible synthetic failure scenarios so the investigation workflow can be demonstrated without touching a real production system.
+
+Example: **database connection exhaustion after deployment**
+
+1. Simulator increases database connection pressure.
+2. Metrics show saturation while errors and latency increase.
+3. Aegis creates an incident.
+4. The agent correlates telemetry, deployment information, runbooks, and history.
+5. The system produces a root-cause hypothesis with supporting evidence.
+6. Remediation is recommended and gated by human approval.
+
+## Evaluation integrity
+
+The repository contains an evaluation data model and API for recording benchmark runs. The current `/api/evaluations/run` endpoint generates **synthetic demo metrics for UI/workflow validation**; those values are not presented here as a statistically valid model benchmark.
+
+Before publishing model-performance claims, add a fixed, versioned evaluation dataset and report the evaluation methodology, dataset composition, exact-match criteria, and reproducible results.
+
+## Technology stack
 
 | Layer | Technology |
-|-------|-----------|
+|---|---|
 | Backend | Python 3.12, FastAPI, SQLAlchemy, Alembic |
-| AI Agent | LangGraph, LLM abstraction (OpenAI/Gemini/Local) |
+| AI | LangGraph, configurable LLM provider |
 | RAG | pgvector, sentence-transformers, hybrid retrieval |
 | Database | PostgreSQL 16, Redis 7 |
 | Frontend | React 18, TypeScript, Vite, TailwindCSS |
 | Observability | OpenTelemetry, structured JSON logging |
 | Testing | Pytest, Playwright, Locust |
 | Infrastructure | Docker, Kubernetes, Terraform, GitHub Actions |
+| Security | JWT, role-based authorization, CodeQL, Dependabot |
 
-## Features
+## Repository structure
 
-### Incident Lifecycle
-- 10-state incident state machine with validated transitions
-- Severity calculation (SEV-1 through SEV-4)
-- Audit trail of state changes
+```text
+aegis/
+├── backend/
+│   ├── app/
+│   │   ├── ai/                 # Agent, tools, and RAG
+│   │   ├── simulator/          # Reproducible failure scenarios
+│   │   ├── services/           # Business logic
+│   │   ├── auth/               # Authentication and authorization
+│   │   ├── models/             # Database models
+│   │   └── middleware/         # Rate limiting, logging, security
+│   ├── tests/                  # Unit and integration tests
+│   └── alembic/                # Database migrations
+├── frontend/                   # React operations dashboard
+├── docs/                       # Architecture, runbooks, ADRs
+├── scripts/                    # Seed/demo utilities
+├── .github/workflows/          # CI/CD and CodeQL
+├── docker-compose.yml
+├── Makefile
+└── README.md
+```
 
-### AI Investigation Agent
-- LangGraph state machine with explicit investigation phases
-- Agent tools for metrics, logs, traces, deployments, runbooks, and history
-- Evidence-backed reasoning and confidence scores
-- Hallucination controls and prompt-injection defenses for untrusted content
+## Local development
 
-### RAG Knowledge System
-- Document ingestion pipeline for runbooks, postmortems, and operational docs
-- Chunking → embedding → pgvector storage
-- Hybrid retrieval with reranking
-- Metadata filtering by service, type, and environment
+### Prerequisites
 
-### Failure Simulation
-- 12 predefined failure scenarios
-- Generates synthetic metrics, logs, and traces
-- Isolated from the host system
-- Useful for demos and repeatable development tests
+- Docker + Docker Compose
+- An LLM provider key configured through `.env`
 
-### Remediation Engine
-- Dry-run mode and execution mode
-- Human approval required for impactful actions
-- Risk assessment and rollback strategy
-- Audit trail
-
-### Evaluation Framework
-- Evaluation data model and API for recording benchmark runs
-- Tracks root-cause accuracy, evidence grounding, hallucination rate, latency, cost, and token usage
-- The current `/api/evaluations/run` endpoint generates **synthetic demo metrics** for UI/workflow validation; it is not presented as a statistically valid model benchmark
-- A fixed, versioned evaluation dataset should be added before publishing benchmark claims
-
-### Security
-- JWT authentication with role-based access
-- Prompt-injection protection
-- Tool authorization per role
-- Remediation approval workflow
-- Rate limiting, input validation, audit logging
-- Explicit CORS configuration via environment variable
-
-## Local Setup
+### Start
 
 ```bash
 git clone https://github.com/AloneRider-pixel/aegis.git
 cd aegis
-
 cp .env.example .env
-# Add provider keys and required auth/database settings
-
 docker compose up -d
-docker compose exec backend alembic upgrade head
 
+docker compose exec backend alembic upgrade head
 docker compose exec backend python -m scripts.seed_knowledge
 ```
 
-Access:
+Services:
 
 - Frontend: `http://localhost:3000`
 - API: `http://localhost:8000`
-- API docs: `http://localhost:8000/docs`
+- OpenAPI: `http://localhost:8000/docs`
 
-## Run Tests
+### Run tests
 
 ```bash
 docker compose exec backend pytest
-
 docker compose exec backend pytest tests/unit/
 docker compose exec backend pytest tests/integration/
 ```
 
-## Run Demo Incident
+## API surface
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/auth/login` | Authenticate |
+| GET | `/api/incidents` | List incidents |
+| POST | `/api/incidents/{id}/investigate` | Start AI investigation |
+| POST | `/api/incidents/{id}/approve-remediation` | Approve remediation |
+| POST | `/api/knowledge/search` | Search operational knowledge |
+| POST | `/api/evaluations/run` | Create synthetic evaluation run data |
+
+Interactive OpenAPI documentation is available at `/docs`.
+
+## Demo incident
+
+Trigger the reproducible database-connection-exhaustion scenario:
 
 ```bash
 curl -X POST http://localhost:8000/api/simulator/scenarios/db-connection-exhaustion/trigger \
@@ -191,56 +203,19 @@ curl http://localhost:8000/api/incidents?status=investigating \
   -H "Authorization: Bearer <token>"
 ```
 
-## API Documentation
+## CI and security
 
-Interactive docs are available at `http://localhost:8000/docs`.
+The CI pipeline validates backend quality/tests, frontend builds, and Docker images. CodeQL analyzes Python and JavaScript/TypeScript on pushes, pull requests, and a scheduled run.
 
-Key endpoints include:
-- `POST /api/auth/login` — Authenticate
-- `GET /api/incidents` — List incidents
-- `POST /api/incidents/{id}/investigate` — Start AI investigation
-- `POST /api/incidents/{id}/approve-remediation` — Approve remediation
-- `POST /api/knowledge/search` — Search runbooks
-- `POST /api/evaluations/run` — Create a synthetic evaluation run record for demo/workflow validation
+Runtime secrets are provided through environment variables and are not intended to be committed to source control.
 
-## Project Structure
+## Roadmap
 
-```text
-aegis/
-├── backend/
-│   ├── app/
-│   │   ├── main.py              # FastAPI application
-│   │   ├── config.py             # Settings
-│   │   ├── database.py           # DB connection
-│   │   ├── models/               # SQLAlchemy models
-│   │   ├── schemas/              # Pydantic schemas
-│   │   ├── services/             # Business logic
-│   │   ├── ai/                   # AI agent + tools + RAG
-│   │   ├── simulator/            # Failure simulation
-│   │   ├── auth/                 # Authentication
-│   │   └── middleware/           # Rate limiting, logging
-│   ├── tests/                    # Test suite
-│   ├── alembic/                  # Database migrations
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── components/           # React components
-│   │   ├── pages/                # Dashboard pages
-│   │   ├── services/             # API client
-│   │   └── hooks/                # Custom hooks
-│   └── Dockerfile
-├── scripts/                      # Utility scripts
-├── docs/                         # Architecture, runbooks, ADRs
-├── docker-compose.yml
-└── .github/workflows/            # CI, CodeQL, dependency automation
-```
-
-## Engineering Notes
-
-- CI validates backend tests/coverage, frontend builds, and Docker image builds.
-- CodeQL and Dependabot provide automated security/dependency checks.
-- Runtime secrets are supplied through environment variables rather than source-controlled passwords.
-- Development/demo credentials should be provided through `.env` or shell environment variables.
+- Fixed, versioned benchmark dataset for reproducible agent evaluation.
+- Persistent investigation history and asynchronous job execution.
+- Broader telemetry adapters and production integrations.
+- OpenTelemetry metrics and model-cost telemetry.
+- Regression suite with adversarial prompt-injection fixtures.
 
 ## License
 
