@@ -19,7 +19,7 @@ langgraph>=0.2.22
 langchain-core>=0.2.35
 langchain-openai>=0.1.0
 openai>=1.10.0
-tiktoken>=0.5.2
+tiktoken>=0.14.0
 
 # Auth
 pyjwt==2.8.0
