@@ -1,4 +1,4 @@
-.PHONY: dev test lint docker-build clean
+.PHONY: dev dev-down test lint migrate seed demo eval clean
 
 dev:
 	docker compose up -d
@@ -20,10 +20,13 @@ seed:
 
 demo:
 	@echo "Triggering demo scenario..."
-	@curl -s -X POST http://localhost:8000/api/simulator/scenarios/db-connection-exhaustion/trigger \
-		-H "Authorization: Bearer $$(curl -s -X POST http://localhost:8000/api/auth/login \
+	@test -n "$(AEGIS_ADMIN_PASSWORD)" || (echo "Set AEGIS_ADMIN_PASSWORD first" && exit 1)
+	@TOKEN=$$(curl -fsS -X POST http://localhost:8000/api/auth/login \
 		-H 'Content-Type: application/json' \
-		-d '{"email":"admin@aegis.io","password":"admin123"}' | python3 -c 'import sys,json; print(json.load(sys.stdin)["access_token"])')" | python3 -m json.tool
+		-d '{"email":"admin@aegis.io","password":"'"$$AEGIS_ADMIN_PASSWORD"'"}' \
+		| python3 -c 'import sys,json; print(json.load(sys.stdin)["access_token"])'); \
+	curl -fsS -X POST http://localhost:8000/api/simulator/scenarios/db-connection-exhaustion/trigger \
+		-H "Authorization: Bearer $$TOKEN" | python3 -m json.tool
 
 eval:
 	docker compose exec backend python -m scripts.run_evaluation
