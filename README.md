@@ -2,7 +2,7 @@
 
 **AI-Powered Production Reliability & Incident Response Platform**
 
-Aegis monitors applications, detects anomalies, automatically investigates incidents using an AI agent with tool access, retrieves relevant runbooks via RAG, identifies root causes with evidence-backed reasoning, and recommends remediation — requiring human approval before executing any impactful action.
+Aegis monitors applications, detects anomalies, investigates incidents using an AI agent with tool access, retrieves relevant runbooks via RAG, identifies root causes with evidence-backed reasoning, and recommends remediation — requiring human approval before executing any impactful action.
 
 ---
 
@@ -15,18 +15,18 @@ When production systems fail, engineers face a painful cycle:
 4. Form hypothesis → test → iterate
 5. Finally fix → write postmortem (often skipped)
 
-This takes 30-120+ minutes per incident. The same patterns repeat. Knowledge lives in people's heads.
+This can take tens of minutes or longer per incident, and the same diagnostic patterns repeat.
 
 ## Solution
 
 Aegis automates the investigation phase:
 
-```
-Failure Detected → AI Agent Investigates → Root Cause Identified → 
+```text
+Failure Detected → AI Agent Investigates → Root Cause Identified →
 Remediation Recommended → Human Approved → Fix Executed → Postmortem Generated
 ```
 
-The AI agent queries metrics, logs, traces, deployments, and runbooks — building an evidence chain. It never executes without human approval. Every investigation is auditable.
+The AI agent can query metrics, logs, traces, deployments, and runbooks while building an evidence chain. Impactful remediation is gated behind human approval, and investigations are auditable.
 
 ## Architecture
 
@@ -83,18 +83,15 @@ graph TB
 **"Database Connection Exhaustion After Deployment"**
 
 1. Deployment simulation increases DB connections
-2. Metrics detect connection saturation (95% → 100%)
-3. Error rate spikes from 0.1% → 15%
-4. Aegis auto-creates SEV-2 incident
-5. AI agent investigates:
-   - Queries metrics: DB connections at 100%, error rate 15%
-   - Searches logs: "connection pool exhausted" errors
-   - Checks deployments: checkout-service deployed 5 min ago
-   - Searches runbooks: finds "DB Connection Exhaustion" guide
-   - Checks history: 3 similar incidents, all deployment-related
-6. AI determines: **"Checkout-service deployment v2.4.0 introduced connection leak"** (confidence: 0.92)
-7. Recommends: Rollback to v2.3.9
-8. Human approves → Rollback executes → System recovers → Postmortem generated
+2. Metrics detect connection saturation
+3. Error rate and latency rise
+4. Aegis creates an incident
+5. The AI agent investigates metrics, logs, deployments, runbooks, and history
+6. It produces a root-cause hypothesis with supporting evidence
+7. It recommends a remediation
+8. A human approves the action before execution
+
+The simulator provides reproducible synthetic telemetry for demos and development.
 
 ## Technology Stack
 
@@ -113,151 +110,137 @@ graph TB
 
 ### Incident Lifecycle
 - 10-state incident state machine with validated transitions
-- Automatic severity calculation (SEV-1 through SEV-4)
-- Full audit trail of every state change
+- Severity calculation (SEV-1 through SEV-4)
+- Audit trail of state changes
 
 ### AI Investigation Agent
 - LangGraph state machine with explicit investigation phases
-- 6+ real tools: metrics, logs, traces, deployments, runbooks, history
-- Evidence-backed reasoning with confidence scores
-- Hallucination controls: citations required, evidence grounding
-- Prompt injection defense for untrusted log/document content
+- Agent tools for metrics, logs, traces, deployments, runbooks, and history
+- Evidence-backed reasoning and confidence scores
+- Hallucination controls and prompt-injection defenses for untrusted content
 
 ### RAG Knowledge System
-- Document ingestion pipeline (runbooks, postmortems, docs)
-- Chunking → Embedding → pgvector storage
-- Hybrid retrieval (semantic + keyword) with reranking
-- Metadata filtering by service, type, environment
+- Document ingestion pipeline for runbooks, postmortems, and operational docs
+- Chunking → embedding → pgvector storage
+- Hybrid retrieval with reranking
+- Metadata filtering by service, type, and environment
 
 ### Failure Simulation
-- 12+ realistic failure scenarios
-- Generates real telemetry (metrics, logs, traces)
-- Isolated from host system
-- Powers both demo and evaluation
+- 12 predefined failure scenarios
+- Generates synthetic metrics, logs, and traces
+- Isolated from the host system
+- Useful for demos and repeatable development tests
 
 ### Remediation Engine
-- Dry-run mode (default) and execution mode
-- Human approval required for all impactful actions
+- Dry-run mode and execution mode
+- Human approval required for impactful actions
 - Risk assessment and rollback strategy
-- Full audit trail
+- Audit trail
 
 ### Evaluation Framework
-- 100-scenario benchmark dataset
-- Measures: root-cause accuracy, grounding, hallucination rate, latency, cost
-- Automated scoring with human-readable reports
+- Evaluation data model and API for recording benchmark runs
+- Tracks root-cause accuracy, evidence grounding, hallucination rate, latency, cost, and token usage
+- The current `/api/evaluations/run` endpoint generates **synthetic demo metrics** for UI/workflow validation; it is not presented as a statistically valid model benchmark
+- A fixed, versioned evaluation dataset should be added before publishing benchmark claims
 
 ### Security
-- JWT authentication with 4 roles (Viewer, Engineer, Incident Manager, Admin)
-- Prompt injection protection
+- JWT authentication with role-based access
+- Prompt-injection protection
 - Tool authorization per role
 - Remediation approval workflow
 - Rate limiting, input validation, audit logging
+- Explicit CORS configuration via environment variable
 
 ## Local Setup
 
 ```bash
-# Clone
 git clone https://github.com/AloneRider-pixel/aegis.git
 cd aegis
 
-# Configure
 cp .env.example .env
-# Edit .env with your OPENAI_API_KEY
+# Add provider keys and required auth/database settings
 
-# Start everything
 docker compose up -d
-
-# Run database migrations
 docker compose exec backend alembic upgrade head
 
-# Seed knowledge base
 docker compose exec backend python -m scripts.seed_knowledge
-
-# Access
-# Frontend: http://localhost:3000
-# API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
 ```
+
+Access:
+
+- Frontend: `http://localhost:3000`
+- API: `http://localhost:8000`
+- API docs: `http://localhost:8000/docs`
 
 ## Run Tests
 
 ```bash
-# All tests
 docker compose exec backend pytest
 
-# Unit tests only
 docker compose exec backend pytest tests/unit/
-
-# Integration tests
 docker compose exec backend pytest tests/integration/
-
-# AI evaluation
-docker compose exec backend python -m scripts.run_evaluation
 ```
 
 ## Run Demo Incident
 
 ```bash
-# Trigger the demo scenario
 curl -X POST http://localhost:8000/api/simulator/scenarios/db-connection-exhaustion/trigger \
   -H "Authorization: Bearer <token>"
 
-# Watch investigation progress
 curl http://localhost:8000/api/incidents?status=investigating \
   -H "Authorization: Bearer <token>"
 ```
 
 ## API Documentation
 
-Interactive docs at `http://localhost:8000/docs` (Swagger UI)
+Interactive docs are available at `http://localhost:8000/docs`.
 
-Key endpoints:
+Key endpoints include:
 - `POST /api/auth/login` — Authenticate
 - `GET /api/incidents` — List incidents
 - `POST /api/incidents/{id}/investigate` — Start AI investigation
 - `POST /api/incidents/{id}/approve-remediation` — Approve remediation
 - `POST /api/knowledge/search` — Search runbooks
-- `POST /api/evaluations/run` — Run evaluation benchmark
+- `POST /api/evaluations/run` — Create a synthetic evaluation run record for demo/workflow validation
 
 ## Project Structure
 
-```
+```text
 aegis/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py              # FastAPI application
-│   │   ├── config.py            # Settings
-│   │   ├── database.py          # DB connection
-│   │   ├── models/              # SQLAlchemy models
-│   │   ├── schemas/             # Pydantic schemas
-│   │   ├── api/                 # Route handlers
-│   │   ├── services/            # Business logic
-│   │   ├── ai/                  # AI agent + tools + RAG
-│   │   ├── simulator/           # Failure simulation
-│   │   ├── auth/                # Authentication
-│   │   └── middleware/          # Rate limiting, logging
-│   ├── tests/                   # Test suite
-│   ├── alembic/                 # Database migrations
+│   │   ├── config.py             # Settings
+│   │   ├── database.py           # DB connection
+│   │   ├── models/               # SQLAlchemy models
+│   │   ├── schemas/              # Pydantic schemas
+│   │   ├── services/             # Business logic
+│   │   ├── ai/                   # AI agent + tools + RAG
+│   │   ├── simulator/            # Failure simulation
+│   │   ├── auth/                 # Authentication
+│   │   └── middleware/           # Rate limiting, logging
+│   ├── tests/                    # Test suite
+│   ├── alembic/                  # Database migrations
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
-│   │   ├── components/          # React components
-│   │   ├── pages/               # Dashboard pages
-│   │   ├── services/            # API client
-│   │   └── hooks/               # Custom hooks
+│   │   ├── components/           # React components
+│   │   ├── pages/                # Dashboard pages
+│   │   ├── services/             # API client
+│   │   └── hooks/                # Custom hooks
 │   └── Dockerfile
-├── infrastructure/
-│   ├── kubernetes/              # K8s manifests
-│   ├── helm/                    # Helm charts
-│   └── terraform/               # AWS IaC
-├── scripts/                     # Utility scripts
-├── docs/
-│   ├── architecture/            # System docs
-│   ├── runbooks/                # Operational runbooks
-│   └── adr/                     # Architecture decisions
+├── scripts/                      # Utility scripts
+├── docs/                         # Architecture, runbooks, ADRs
 ├── docker-compose.yml
-└── .github/workflows/           # CI/CD
+└── .github/workflows/            # CI, CodeQL, dependency automation
 ```
+
+## Engineering Notes
+
+- CI validates backend tests/coverage, frontend builds, and Docker image builds.
+- CodeQL and Dependabot provide automated security/dependency checks.
+- Runtime secrets are supplied through environment variables rather than source-controlled passwords.
+- Development/demo credentials should be provided through `.env` or shell environment variables.
 
 ## License
 
