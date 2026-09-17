@@ -49,18 +49,25 @@ jobs:
           print('Repaired', path)
           PY
 
-      - name: Verify frontend syntax
+      - name: Install frontend dependencies
         working-directory: frontend
         run: |
           corepack enable
-          pnpm --version || true
-          npx vite build
+          corepack prepare pnpm@9.15.9 --activate
+          pnpm install --frozen-lockfile
+
+      - name: Verify frontend build
+        working-directory: frontend
+        run: pnpm build
 
       - name: Commit repair
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add frontend/src/App.jsx
-          git diff --cached --quiet && exit 0
-          git commit -m "chore: repair frontend login markup"
+          if git diff --cached --quiet; then
+            echo "No repair changes needed"
+            exit 0
+          fi
+          git commit -m "fix: repair frontend login markup"
           git push
