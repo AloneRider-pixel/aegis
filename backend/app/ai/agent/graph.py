@@ -7,23 +7,22 @@ Flow:
 """
 import logging
 from datetime import datetime
-from typing import Dict
 
 from langgraph.graph import END, START, StateGraph
 
 from app.ai.agent.state import AgentState
-from app.ai.tools.metrics import query_metrics
-from app.ai.tools.logs import search_logs
-from app.ai.tools.traces import inspect_trace
 from app.ai.tools.deployments import get_recent_deployments
-from app.ai.tools.runbooks import search_runbook, search_previous_incidents
+from app.ai.tools.logs import search_logs
+from app.ai.tools.metrics import query_metrics
+from app.ai.tools.runbooks import search_previous_incidents, search_runbook
+from app.ai.tools.traces import inspect_trace
 
 logger = logging.getLogger(__name__)
 
 
 # ─── Node Functions ───
 
-async def understand_incident(state: AgentState) -> Dict:
+async def understand_incident(state: AgentState) -> dict:
     """Parse incident details and identify initial investigation direction."""
     trace_entry = {
         "phase": "understand_incident",
@@ -43,7 +42,7 @@ async def understand_incident(state: AgentState) -> Dict:
     }
 
 
-async def collect_evidence(state: AgentState) -> Dict:
+async def collect_evidence(state: AgentState) -> dict:
     """Gather metrics, logs, traces, and deployment data."""
     service = state.get("service_name", "unknown")
     trace = state.get("investigation_trace", [])
@@ -92,7 +91,7 @@ async def collect_evidence(state: AgentState) -> Dict:
     }
 
 
-async def analyze_evidence(state: AgentState) -> Dict:
+async def analyze_evidence(state: AgentState) -> dict:
     """Analyze collected evidence, search runbooks and history."""
     service = state.get("service_name", "unknown")
     symptoms = state.get("symptoms", [])
@@ -137,7 +136,7 @@ async def analyze_evidence(state: AgentState) -> Dict:
     }
 
 
-async def form_hypotheses(state: AgentState) -> Dict:
+async def form_hypotheses(state: AgentState) -> dict:
     """Form root-cause hypotheses from evidence."""
     logs = state.get("logs_data", [])
     deployments = state.get("deployment_data", [])
@@ -237,7 +236,7 @@ async def form_hypotheses(state: AgentState) -> Dict:
     }
 
 
-async def validate_hypothesis(state: AgentState) -> Dict:
+async def validate_hypothesis(state: AgentState) -> dict:
     """Validate the top hypothesis against additional evidence."""
     hypotheses = state.get("hypotheses", [])
     logs = state.get("logs_data", [])
@@ -300,7 +299,7 @@ async def validate_hypothesis(state: AgentState) -> Dict:
     }
 
 
-async def recommend_remediation(state: AgentState) -> Dict:
+async def recommend_remediation(state: AgentState) -> dict:
     """Generate remediation recommendation based on root cause."""
     root_cause = state.get("root_cause", "")
     hypotheses = state.get("hypotheses", [])

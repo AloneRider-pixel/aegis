@@ -5,10 +5,9 @@ Each scenario generates realistic telemetry and creates an incident.
 import random
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.simulator.telemetry import telemetry_store
-
 
 SCENARIOS = {
     "db-connection-exhaustion": {
@@ -170,15 +169,15 @@ SCENARIOS = {
 }
 
 
-def get_scenario(scenario_id: str) -> Optional[Dict]:
+def get_scenario(scenario_id: str) -> dict | None:
     return SCENARIOS.get(scenario_id)
 
 
-def list_scenarios() -> List[Dict]:
+def list_scenarios() -> list[dict]:
     return list(SCENARIOS.values())
 
 
-def trigger_scenario(scenario_id: str) -> Dict[str, Any]:
+def trigger_scenario(scenario_id: str) -> dict[str, Any]:
     """
     Trigger a failure scenario.
     Generates realistic telemetry and returns incident data.

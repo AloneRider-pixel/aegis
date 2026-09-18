@@ -5,21 +5,24 @@ Main FastAPI application with all API routes.
 import logging
 import uuid
 from contextlib import asynccontextmanager
-from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Header
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth import create_token, decode_token, hash_password, verify_password
 from app.config import settings
 from app.database import async_session, get_db, init_db
-from app.models import Service, User, UserRole, Document, AuditLog, EvaluationRun
+from app.models import AuditLog, Document, EvaluationRun, Service, User, UserRole
 from app.schemas import *
-from app.auth import create_token, decode_token, hash_password, verify_password
 from app.services.incident_service import (
-    create_incident, transition_incident, list_incidents,
-    get_incident, get_incident_events, update_incident_investigation,
+    create_incident,
+    get_incident,
+    get_incident_events,
+    list_incidents,
+    transition_incident,
+    update_incident_investigation,
 )
 from app.simulator.scenarios import list_scenarios, trigger_scenario
 
@@ -74,7 +77,7 @@ app.add_middleware(
 
 # ─── Auth Dependency ───
 
-async def get_current_user(authorization: Optional[str] = Header(None)) -> dict:
+async def get_current_user(authorization: str | None = Header(None)) -> dict:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing authentication")
     token = authorization.split(" ")[1]
@@ -119,8 +122,8 @@ async def get_me(user: dict = Depends(get_current_user)):
 
 @app.get("/api/incidents", response_model=IncidentListResponse)
 async def get_incidents(
-    status: Optional[str] = None,
-    severity: Optional[str] = None,
+    status: str | None = None,
+    severity: str | None = None,
     limit: int = 50,
     offset: int = 0,
     user: dict = Depends(get_current_user),

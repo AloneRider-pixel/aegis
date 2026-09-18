@@ -1,14 +1,14 @@
 """
 Runbooks Tool — searches the RAG knowledge base for relevant runbooks.
 """
-from typing import Any, Dict
+from typing import Any
 
 
 def search_runbook(
     query: str,
-    service: str = None,
+    service: str | None = None,
     top_k: int = 3,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Search the knowledge base for relevant runbooks.
     Uses pgvector for semantic search with metadata filtering.
@@ -33,9 +33,9 @@ def search_runbook(
 
 def search_previous_incidents(
     query: str,
-    severity: str = None,
+    severity: str | None = None,
     top_k: int = 5,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Search previous incidents for similar patterns.
     Helps the agent learn from past incidents.

@@ -1,16 +1,16 @@
 """
 Logs Tool — searches the telemetry log store.
 """
-from typing import Any, Dict
+from typing import Any
 
 
 def search_logs(
-    service_name: str = None,
-    level: str = None,
-    query: str = None,
+    service_name: str | None = None,
+    level: str | None = None,
+    query: str | None = None,
     time_range_minutes: int = 30,
     limit: int = 20,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Search logs for relevant entries.
 
