@@ -139,7 +139,7 @@ function DashboardPage({ user }) {
           </tr></thead>
           <tbody>
             {loading ? <tr><td colSpan="5" className="px-4 py-8 text-center text-gray-500">Loading...</td></tr> :
-             incidents.length === 0 ? <tr><td colSpan="5" className="px-4 py-8 text-center text-gray-500">No incidents yet. Trigger a scenario from the Simulator tab.</td></tr> :
+             incidents.length === 0 ? <tr><td colSpan="5" className="px-4 py-12 text-center text-gray-500"><div className="flex flex-col items-center justify-center space-y-3"><span className="text-3xl" aria-hidden="true">🎉</span><div><p className="text-gray-300 font-medium">All clear! No incidents detected.</p><p className="text-sm mt-1">Trigger a scenario from the Simulator tab to get started.</p></div></div></td></tr> :
              incidents.map(inc => (
               <tr key={inc.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
                 <td className="px-4 py-3"><SeverityBadge severity={inc.severity} /></td>
@@ -277,7 +277,13 @@ function IncidentsPage() {
               )}
             </div>
           ))}
-          {incidents.length === 0 && <p className="text-gray-500 text-center py-8">No incidents. Trigger a scenario from the Simulator.</p>}
+          {incidents.length === 0 && (
+            <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-800 rounded-xl bg-gray-900/50 text-center">
+              <span className="text-3xl mb-3" aria-hidden="true">🛡️</span>
+              <p className="text-gray-300 font-medium">All clear! No incidents currently detected.</p>
+              <p className="text-gray-500 text-sm mt-1">Trigger a scenario from the Simulator to begin.</p>
+            </div>
+          )}
         </div>
       </div>
       <div className="w-1/2">
@@ -335,8 +341,10 @@ function IncidentsPage() {
             )}
           </div>
         ) : (
-          <div className="bg-gray-900 rounded-xl p-12 border border-gray-800 text-center">
-            <p className="text-gray-500">Select an incident to view details</p>
+          <div className="bg-gray-900 rounded-xl p-12 border border-gray-800 flex flex-col items-center justify-center text-center">
+            <span className="text-4xl mb-4" aria-hidden="true">👀</span>
+            <p className="text-gray-300 font-medium">Select an incident to view details</p>
+            <p className="text-gray-500 text-sm mt-2 max-w-sm">Click on any incident in the list to see symptoms and AI investigations.</p>
           </div>
         )}
       </div>
