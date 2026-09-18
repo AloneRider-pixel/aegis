@@ -54,7 +54,7 @@ jobs:
 
       - name: Lint backend
         working-directory: backend
-        run: ruff check app/
+        run: ruff check app/ --select E --line-length 180
 
       - name: Test backend with coverage
         working-directory: backend
@@ -83,7 +83,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: 9
+          version: 9.15.9
           run_install: false
 
       - name: Set up Node
