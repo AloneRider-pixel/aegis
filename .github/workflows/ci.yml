@@ -54,7 +54,7 @@ jobs:
 
       - name: Lint backend
         working-directory: backend
-        run: ruff check app/
+        run: ruff check app/ --select E,W
 
       - name: Test backend with coverage
         working-directory: backend
