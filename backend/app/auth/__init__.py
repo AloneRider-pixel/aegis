@@ -1,7 +1,7 @@
 """Authentication utilities."""
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+
 
 import bcrypt
 import jwt
