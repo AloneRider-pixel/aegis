@@ -1,0 +1,3 @@
+## 2024-05-01 - Missing explicit UI error states for async actions
+**Learning:** Missing explicit UI error states for async actions (like API fetches) lead to horrible UX outcomes: either the error is completely swallowed (leaving the user waiting indefinitely or confused), or worse, a false positive state is rendered (e.g., rendering a green "Success" banner purely because an API response object exists, even if it contains an error message).
+**Action:** Always ensure that async actions handle both success and error states explicitly in the UI. Conditionally check for the presence of `error` fields in response objects and render dedicated error containers (e.g. red bordered divs) with `role="alert"` so screen readers can announce the failure immediately.
