@@ -6,7 +6,9 @@ import logging
 import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+import time
+from collections import defaultdict
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -100,8 +102,21 @@ async def health():
 
 # ─── Auth Routes ───
 
+# Simple in-memory rate limiter for login
+login_attempts = defaultdict(list)
+
 @app.post("/api/auth/login", response_model=TokenResponse)
-async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    # Rate limit: max 5 requests per minute per IP
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    login_attempts[client_ip] = [t for t in login_attempts[client_ip] if now - t < 60]
+
+    if len(login_attempts[client_ip]) >= 5:
+        raise HTTPException(status_code=429, detail="Too many login attempts")
+
+    login_attempts[client_ip].append(now)
+
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
     if not user or not verify_password(req.password, user.hashed_password):
