@@ -171,6 +171,10 @@ function SimulatorPage() {
     setResult(null)
     try {
       const res = await fetch(`${API}/simulator/scenarios/${id}/trigger`, { method: 'POST', headers: getHeaders() })
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to trigger scenario');
+      }
       const data = await res.json()
       setResult(data)
     } catch (err) { setResult({ error: err.message }) }
@@ -200,7 +204,13 @@ function SimulatorPage() {
           </div>
         ))}
       </div>
-      {result && (
+      {result && result.error && (
+        <div role="alert" className="mt-6 bg-red-900/20 rounded-xl p-4 border border-red-800">
+          <h3 className="text-red-400 font-medium mb-2">❌ Scenario Trigger Failed</h3>
+          <p className="text-red-300 text-sm">{result.error}</p>
+        </div>
+      )}
+      {result && !result.error && (
         <div className="mt-6 bg-gray-900 rounded-xl p-4 border border-green-800">
           <h3 className="text-green-400 font-medium mb-2">✅ Scenario Triggered</h3>
           <p className="text-gray-300 text-sm">Incident created: <strong>{result.incident_id}</strong></p>
