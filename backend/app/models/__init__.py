@@ -92,7 +92,8 @@ class Incident(Base):
     # ⚡ Bolt Optimization: Added index=True to severity, status, and created_at to speed up list_incidents filtering and sorting
     severity = Column(Enum(Severity), nullable=False, index=True)
     status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED, index=True)
-    service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"))
+    # ⚡ Bolt Optimization: Added missing index=True to foreign key
+    service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)
     # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during relationship lookups and cascading deletes
@@ -210,7 +211,8 @@ class AuditLog(Base):
     resource_id = Column(String(255))
     details = Column(JSON, default=dict)
     ip_address = Column(String(50))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True for order_by queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
 # ─── Evaluation ───
@@ -229,4 +231,5 @@ class EvaluationRun(Base):
     total_cost_usd = Column(Float)
     total_tokens = Column(Integer)
     results = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True for order_by queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
