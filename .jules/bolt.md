@@ -13,3 +13,7 @@
 ## 2024-05-18 - Missing SQLAlchemy Index on Foreign Keys
 **Learning:** In SQLAlchemy models, PostgreSQL does not automatically index foreign keys by default, leading to silent O(N) sequential scans during relationship queries or cascading deletes, which creates severe performance bottlenecks as tables grow.
 **Action:** When designing or refactoring SQLAlchemy models involving `ForeignKey` constraints, ALWAYS explicitly specify `index=True` for those columns (e.g., `service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)`) unless you have a specific, measurable reason to avoid the index overhead.
+## 2024-05-18 - Missing Foreign Key and Created_At Indexes in SQLAlchemy
+
+**Learning:** PostgreSQL does not automatically index foreign keys or timestamp columns commonly used for ordering (like `created_at`). In this codebase, the FastAPI endpoints frequently query `AuditLog` and `EvaluationRun` using `.order_by(Model.created_at.desc()).limit(...)`. Without an index on `created_at`, PostgreSQL must perform sequential table scans and memory-intensive Top-N sorts, severely degrading query performance to O(N) as log tables grow indefinitely large over time.
+**Action:** When creating new SQLAlchemy models that will be queried via `.order_by(...)` or accessed via foreign key relationships, proactively add `index=True` to those columns to enable O(log N) index scans, maintaining constant execution time regardless of table size.

@@ -210,7 +210,8 @@ class AuditLog(Base):
     resource_id = Column(String(255))
     details = Column(JSON, default=dict)
     ip_address = Column(String(50))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True for desc(AuditLog.created_at) queries to prevent O(N) sequential scans
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
 # ─── Evaluation ───
@@ -229,4 +230,5 @@ class EvaluationRun(Base):
     total_cost_usd = Column(Float)
     total_tokens = Column(Integer)
     results = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True for desc(EvaluationRun.created_at) queries to prevent O(N) sequential scans
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
