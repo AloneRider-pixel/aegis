@@ -215,7 +215,8 @@ function SimulatorPage() {
 function IncidentsPage() {
   const [incidents, setIncidents] = useState([])
   const [selected, setSelected] = useState(null)
-  const [investigating, setInvestigating] = useState(false)
+  const [investigatingId, setInvestigatingId] = useState(null)
+  const [approvingId, setApprovingId] = useState(null)
   const [investigationResult, setInvestigationResult] = useState(null)
 
   const loadIncidents = () => {
@@ -225,7 +226,7 @@ function IncidentsPage() {
   useEffect(loadIncidents, [])
 
   const investigate = async (id) => {
-    setInvestigating(true)
+    setInvestigatingId(id)
     setInvestigationResult(null)
     try {
       const res = await fetch(`${API}/incidents/${id}/investigate`, { method: 'POST', headers: getHeaders() })
@@ -233,12 +234,17 @@ function IncidentsPage() {
       setInvestigationResult(data)
       loadIncidents()
     } catch (err) { setInvestigationResult({ error: err.message }) }
-    setInvestigating(false)
+    setInvestigatingId(null)
   }
 
   const approve = async (id) => {
-    await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
-    loadIncidents()
+    setApprovingId(id)
+    setInvestigationResult(null)
+    try {
+      await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
+      loadIncidents()
+    } catch (err) { setInvestigationResult({ error: err.message }) }
+    setApprovingId(null)
   }
 
   return (
@@ -264,15 +270,15 @@ function IncidentsPage() {
               <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
               {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
               {inc.status === 'detected' && (
-                <button onClick={(e) => { e.stopPropagation(); investigate(inc.id) }} disabled={investigating}
-                  className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                  {investigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+                <button onClick={(e) => { e.stopPropagation(); investigate(inc.id) }} disabled={investigatingId === inc.id}
+                  className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                  {investigatingId === inc.id ? '🔄 Investigating...' : '🤖 Investigate with AI'}
                 </button>
               )}
               {inc.status === 'awaiting_approval' && (
-                <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }}
-                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-                  ✅ Approve Remediation
+                <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }} disabled={approvingId === inc.id}
+                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+                  {approvingId === inc.id ? '🔄 Approving...' : '✅ Approve Remediation'}
                 </button>
               )}
             </div>
@@ -281,7 +287,12 @@ function IncidentsPage() {
         </div>
       </div>
       <div className="w-1/2">
-        {investigationResult && !investigationResult.error ? (
+        {investigationResult && investigationResult.error ? (
+          <div className="bg-red-900/20 border border-red-800 p-6 rounded-xl" role="alert">
+            <h3 className="text-red-400 font-bold mb-2">Investigation Failed</h3>
+            <p className="text-red-300">{investigationResult.error}</p>
+          </div>
+        ) : investigationResult && !investigationResult.error ? (
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
             <h3 className="text-lg font-bold text-white mb-4">🤖 AI Investigation Report</h3>
             <div className="space-y-4">
