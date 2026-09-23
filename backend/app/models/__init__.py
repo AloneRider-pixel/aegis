@@ -92,7 +92,7 @@ class Incident(Base):
     # ⚡ Bolt Optimization: Added index=True to severity, status, and created_at to speed up list_incidents filtering and sorting
     severity = Column(Enum(Severity), nullable=False, index=True)
     status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED, index=True)
-    service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"))
+    service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)
     # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during relationship lookups and cascading deletes

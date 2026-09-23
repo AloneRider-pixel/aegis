@@ -10,7 +10,10 @@ from app.models import *
 
 config = context.config
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    try:
+        fileConfig(config.config_file_name)
+    except KeyError:
+        pass # Logging not configured in alembic.ini
 target_metadata = Base.metadata
 def run_migrations_offline() -> None:
     url = settings.async_database_url

@@ -13,3 +13,6 @@
 ## 2024-05-18 - Missing SQLAlchemy Index on Foreign Keys
 **Learning:** In SQLAlchemy models, PostgreSQL does not automatically index foreign keys by default, leading to silent O(N) sequential scans during relationship queries or cascading deletes, which creates severe performance bottlenecks as tables grow.
 **Action:** When designing or refactoring SQLAlchemy models involving `ForeignKey` constraints, ALWAYS explicitly specify `index=True` for those columns (e.g., `service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)`) unless you have a specific, measurable reason to avoid the index overhead.
+## 2026-09-23 - Alembic Logging KeyError
+**Learning:** When running Alembic migrations, `fileConfig(config.config_file_name)` in `env.py` can throw a `KeyError: 'formatters'` if logging is not fully configured in `alembic.ini`.
+**Action:** When working in repositories with minimal Alembic configurations, always wrap the `fileConfig` call in `env.py` with a `try-except KeyError` block to prevent migration script generation and execution from failing.
