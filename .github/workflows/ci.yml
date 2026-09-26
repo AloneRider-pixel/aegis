@@ -64,6 +64,8 @@ jobs:
         run: ruff check app/ --select E --line-length 180
 
       - name: Deterministic incident benchmark
+        env:
+          PYTHONPATH: backend
         run: python scripts/run_incident_benchmark.py --output artifacts/incident-benchmark.json
       - name: Upload incident benchmark evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
