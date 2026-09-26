@@ -200,7 +200,12 @@ function SimulatorPage() {
           </div>
         ))}
       </div>
-      {result && (
+      {result && result.error ? (
+        <div className="mt-6 bg-red-900/20 rounded-xl p-4 border border-red-800" role="alert">
+          <h3 className="text-red-400 font-medium mb-2">❌ Scenario Trigger Failed</h3>
+          <p className="text-red-300 text-sm">{result.error}</p>
+        </div>
+      ) : result && (
         <div className="mt-6 bg-gray-900 rounded-xl p-4 border border-green-800">
           <h3 className="text-green-400 font-medium mb-2">✅ Scenario Triggered</h3>
           <p className="text-gray-300 text-sm">Incident created: <strong>{result.incident_id}</strong></p>
@@ -215,7 +220,8 @@ function SimulatorPage() {
 function IncidentsPage() {
   const [incidents, setIncidents] = useState([])
   const [selected, setSelected] = useState(null)
-  const [investigating, setInvestigating] = useState(false)
+  const [investigatingId, setInvestigatingId] = useState(null)
+  const [approvingId, setApprovingId] = useState(null)
   const [investigationResult, setInvestigationResult] = useState(null)
 
   const loadIncidents = () => {
@@ -225,7 +231,7 @@ function IncidentsPage() {
   useEffect(loadIncidents, [])
 
   const investigate = async (id) => {
-    setInvestigating(true)
+    setInvestigatingId(id)
     setInvestigationResult(null)
     try {
       const res = await fetch(`${API}/incidents/${id}/investigate`, { method: 'POST', headers: getHeaders() })
@@ -233,12 +239,17 @@ function IncidentsPage() {
       setInvestigationResult(data)
       loadIncidents()
     } catch (err) { setInvestigationResult({ error: err.message }) }
-    setInvestigating(false)
+    setInvestigatingId(null)
   }
 
   const approve = async (id) => {
-    await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
-    loadIncidents()
+    setApprovingId(id)
+    try {
+      await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
+      loadIncidents()
+    } finally {
+      setApprovingId(null)
+    }
   }
 
   return (
@@ -264,15 +275,15 @@ function IncidentsPage() {
               <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
               {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
               {inc.status === 'detected' && (
-                <button onClick={(e) => { e.stopPropagation(); investigate(inc.id) }} disabled={investigating}
-                  className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                  {investigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+                <button onClick={(e) => { e.stopPropagation(); investigate(inc.id) }} disabled={investigatingId === inc.id}
+                  className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                  {investigatingId === inc.id ? '🔄 Investigating...' : '🤖 Investigate with AI'}
                 </button>
               )}
               {inc.status === 'awaiting_approval' && (
-                <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }}
-                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-                  ✅ Approve Remediation
+                <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }} disabled={approvingId === inc.id}
+                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+                  {approvingId === inc.id ? '⏳ Approving...' : '✅ Approve Remediation'}
                 </button>
               )}
             </div>
@@ -317,6 +328,11 @@ function IncidentsPage() {
                 </div>
               </div>
             </div>
+          </div>
+        ) : investigationResult && investigationResult.error ? (
+          <div className="bg-red-900/20 rounded-xl p-6 border border-red-800" role="alert">
+            <h3 className="text-lg font-bold text-red-400 mb-2">❌ Investigation Failed</h3>
+            <p className="text-red-300 text-sm">{investigationResult.error}</p>
           </div>
         ) : selected ? (
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
