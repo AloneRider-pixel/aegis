@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from datetime import datetime
 
 from app.simulator.scenarios import SCENARIOS, trigger_scenario
 from app.simulator.telemetry import telemetry_store
@@ -14,10 +15,11 @@ DEFAULT_SEED = 20260927
 
 
 def canonical_case(scenario_id: str, result: dict) -> dict:
-    metrics = telemetry_store.get_metrics(result["service"], time_range_minutes=60)
-    logs = telemetry_store.get_logs(service_name=result["service"], time_range_minutes=60, limit=500)
-    traces = telemetry_store.get_traces(service_name=result["service"], slow_only=False, time_range_minutes=60)
-    deployments = telemetry_store.get_deployments(service_name=result["service"], hours=24)
+    reference_time = datetime(2026, 1, 1)
+    metrics = telemetry_store.get_metrics(result["service"], time_range_minutes=60, as_of=reference_time)
+    logs = telemetry_store.get_logs(service_name=result["service"], time_range_minutes=60, limit=500, as_of=reference_time)
+    traces = telemetry_store.get_traces(service_name=result["service"], slow_only=False, time_range_minutes=60, as_of=reference_time)
+    deployments = telemetry_store.get_deployments(service_name=result["service"], hours=24, as_of=reference_time)
 
     return {
         "scenario": scenario_id,
