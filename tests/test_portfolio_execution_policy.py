@@ -25,5 +25,6 @@ def test_audit_id_is_stable_and_secret_free() -> None:
     first = authorize(request)
     second = authorize(request)
     assert first.audit_id == second.audit_id
-    assert "retry" not in audit_event(request, first) or True
-    assert first.audit_id in audit_event(request, first)
+    event = audit_event(request, first)
+    assert "retry" not in event
+    assert first.audit_id in event
