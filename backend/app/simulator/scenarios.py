@@ -198,11 +198,11 @@ def trigger_scenario(scenario_id: str, seed: int | None = None) -> dict[str, Any
     for i in range(30):
         ts = now - timedelta(minutes=30 - i)
         telemetry_store.add_metric(service, "request_rate", rng.uniform(100, 200), ts)
-        telemetry_store.add_metric(service, "error_rate", random.uniform(0.001, 0.01), ts)
-        telemetry_store.add_metric(service, "latency_p50", random.uniform(20, 80), ts)
-        telemetry_store.add_metric(service, "latency_p95", random.uniform(100, 300), ts)
-        telemetry_store.add_metric(service, "cpu_usage", random.uniform(20, 50), ts)
-        telemetry_store.add_metric(service, "memory_usage", random.uniform(40, 60), ts)
+        telemetry_store.add_metric(service, "error_rate", rng.uniform(0.001, 0.01), ts)
+        telemetry_store.add_metric(service, "latency_p50", rng.uniform(20, 80), ts)
+        telemetry_store.add_metric(service, "latency_p95", rng.uniform(100, 300), ts)
+        telemetry_store.add_metric(service, "cpu_usage", rng.uniform(20, 50), ts)
+        telemetry_store.add_metric(service, "memory_usage", rng.uniform(40, 60), ts)
 
     # Generate scenario-specific anomaly
     _generate_anomaly(scenario_id, service, now, rng)
@@ -220,7 +220,7 @@ def trigger_scenario(scenario_id: str, seed: int | None = None) -> dict[str, Any
     _generate_logs(scenario_id, service, now, rng)
 
     # Generate some traces
-    _generate_traces(scenario_id, service, now)
+    _generate_traces(scenario_id, service, now, rng)
 
     return {
         "scenario": scenario,
@@ -320,7 +320,7 @@ def _generate_logs(scenario_id: str, service: str, now: datetime, rng):
         telemetry_store.add_log(service, level, message, ts)
 
 
-def _generate_traces(scenario_id: str, service: str, now: datetime):
+def _generate_traces(scenario_id: str, service: str, now: datetime, rng):
     """Generate scenario-specific trace spans."""
     operations = {
         "db-connection-exhaustion": [
@@ -353,6 +353,6 @@ def _generate_traces(scenario_id: str, service: str, now: datetime):
                 trace_id=uuid.uuid4().hex[:16],
                 service=service,
                 operation=op,
-                duration_ms=duration + random.randint(-100, 100),
+                duration_ms=duration + rng.randint(-100, 100),
                 status=status,
             )
