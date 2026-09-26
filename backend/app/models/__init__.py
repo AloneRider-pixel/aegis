@@ -158,7 +158,8 @@ class IncidentEvent(Base):
     new_status = Column(String(50))
     actor = Column(String(255))  # "system", "user:email", "ai-agent"
     details = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True to speed up desc(IncidentEvent.created_at) queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
     incident = relationship("Incident", back_populates="events")
 
@@ -210,7 +211,8 @@ class AuditLog(Base):
     resource_id = Column(String(255))
     details = Column(JSON, default=dict)
     ip_address = Column(String(50))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True to speed up desc(AuditLog.created_at) queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
 # ─── Evaluation ───
@@ -229,4 +231,5 @@ class EvaluationRun(Base):
     total_cost_usd = Column(Float)
     total_tokens = Column(Integer)
     results = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True to speed up desc(EvaluationRun.created_at) queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
