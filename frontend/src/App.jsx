@@ -222,6 +222,7 @@ function IncidentsPage() {
   const [selected, setSelected] = useState(null)
   const [investigatingId, setInvestigatingId] = useState(null)
   const [approvingId, setApprovingId] = useState(null)
+  const [approveError, setApproveError] = useState(null)
   const [investigationResult, setInvestigationResult] = useState(null)
 
   const loadIncidents = () => {
@@ -235,6 +236,7 @@ function IncidentsPage() {
     setInvestigationResult(null)
     try {
       const res = await fetch(`${API}/incidents/${id}/investigate`, { method: 'POST', headers: getHeaders() })
+      if (!res.ok) throw new Error('Investigation failed')
       const data = await res.json()
       setInvestigationResult(data)
       loadIncidents()
@@ -244,9 +246,13 @@ function IncidentsPage() {
 
   const approve = async (id) => {
     setApprovingId(id)
+    setApproveError(null)
     try {
-      await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
+      const res = await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
+      if (!res.ok) throw new Error('Failed to approve remediation')
       loadIncidents()
+    } catch (err) {
+      setApproveError({ id, message: err.message })
     } finally {
       setApprovingId(null)
     }
@@ -281,10 +287,17 @@ function IncidentsPage() {
                 </button>
               )}
               {inc.status === 'awaiting_approval' && (
-                <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }} disabled={approvingId === inc.id}
-                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-                  {approvingId === inc.id ? '⏳ Approving...' : '✅ Approve Remediation'}
-                </button>
+                <div className="mt-2">
+                  <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }} disabled={approvingId === inc.id}
+                    className="px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+                    {approvingId === inc.id ? '⏳ Approving...' : '✅ Approve Remediation'}
+                  </button>
+                  {approveError && approveError.id === inc.id && (
+                    <div className="mt-2 text-xs text-red-400 bg-red-900/20 p-2 rounded" role="alert">
+                      {approveError.message}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           ))}
