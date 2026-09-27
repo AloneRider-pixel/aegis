@@ -1,0 +1,3 @@
+## 2024-05-24 - Async Button Loading States & Error Alerts
+**Learning:** Shared global boolean loading states (`isInvestigating`) for lists of items lock the entire UI and cause confusing feedback for users clicking on a specific row. Furthermore, implicit error handling without rendering explicit `role="alert"` states can cause silent failures where users don't know an action failed.
+**Action:** Always map list-item async loading actions to unique identifiers (e.g. `investigatingId`) instead of booleans, and proactively render dedicated `role="alert"` error containers rather than silently doing nothing when an async request throws.
