@@ -291,7 +291,12 @@ function IncidentsPage() {
         </div>
       </div>
       <div className="w-1/2">
-        {investigationResult && !investigationResult.error ? (
+        {investigationResult && investigationResult.error ? (
+          <div className="bg-gray-900 rounded-xl p-6 border border-red-800" role="alert">
+            <h3 className="text-red-400 font-bold mb-2">❌ Investigation Failed</h3>
+            <p className="text-gray-300 text-sm">{investigationResult.error}</p>
+          </div>
+        ) : investigationResult && !investigationResult.error ? (
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
             <h3 className="text-lg font-bold text-white mb-4">🤖 AI Investigation Report</h3>
             <div className="space-y-4">
