@@ -177,7 +177,7 @@ def list_scenarios() -> list[dict]:
     return list(SCENARIOS.values())
 
 
-def trigger_scenario(scenario_id: str, seed: int | None = None) -> dict[str, Any]:
+def trigger_scenario(scenario_id: str) -> dict[str, Any]:
     """
     Trigger a failure scenario.
     Generates realistic telemetry and returns incident data.
@@ -190,22 +190,21 @@ def trigger_scenario(scenario_id: str, seed: int | None = None) -> dict[str, Any
     telemetry_store.reset()
     telemetry_store.set_active_scenario(scenario_id)
 
-    rng = random.Random(seed) if seed is not None else random
     service = scenario["service"]
-    now = datetime(2026, 1, 1) if seed is not None else datetime.utcnow()
+    now = datetime.utcnow()
 
     # Generate baseline metrics (normal operation)
     for i in range(30):
         ts = now - timedelta(minutes=30 - i)
-        telemetry_store.add_metric(service, "request_rate", rng.uniform(100, 200), ts)
-        telemetry_store.add_metric(service, "error_rate", rng.uniform(0.001, 0.01), ts)
-        telemetry_store.add_metric(service, "latency_p50", rng.uniform(20, 80), ts)
-        telemetry_store.add_metric(service, "latency_p95", rng.uniform(100, 300), ts)
-        telemetry_store.add_metric(service, "cpu_usage", rng.uniform(20, 50), ts)
-        telemetry_store.add_metric(service, "memory_usage", rng.uniform(40, 60), ts)
+        telemetry_store.add_metric(service, "request_rate", random.uniform(100, 200), ts)
+        telemetry_store.add_metric(service, "error_rate", random.uniform(0.001, 0.01), ts)
+        telemetry_store.add_metric(service, "latency_p50", random.uniform(20, 80), ts)
+        telemetry_store.add_metric(service, "latency_p95", random.uniform(100, 300), ts)
+        telemetry_store.add_metric(service, "cpu_usage", random.uniform(20, 50), ts)
+        telemetry_store.add_metric(service, "memory_usage", random.uniform(40, 60), ts)
 
     # Generate scenario-specific anomaly
-    _generate_anomaly(scenario_id, service, now, rng)
+    _generate_anomaly(scenario_id, service, now)
 
     # Generate a deployment if deployment-related
     if scenario["category"] in ("deployment", "configuration"):
@@ -217,10 +216,10 @@ def trigger_scenario(scenario_id: str, seed: int | None = None) -> dict[str, Any
         )
 
     # Generate some logs
-    _generate_logs(scenario_id, service, now, rng)
+    _generate_logs(scenario_id, service, now)
 
     # Generate some traces
-    _generate_traces(scenario_id, service, now, rng)
+    _generate_traces(scenario_id, service, now)
 
     return {
         "scenario": scenario,
@@ -236,7 +235,7 @@ def trigger_scenario(scenario_id: str, seed: int | None = None) -> dict[str, Any
     }
 
 
-def _generate_anomaly(scenario_id: str, service: str, now: datetime, rng):
+def _generate_anomaly(scenario_id: str, service: str, now: datetime):
     """Generate scenario-specific anomaly metrics."""
     for i in range(10):
         ts = now - timedelta(minutes=10 - i)
@@ -272,7 +271,7 @@ def _generate_anomaly(scenario_id: str, service: str, now: datetime, rng):
             telemetry_store.add_metric(service, "latency_p95", 300 + i * 100, ts)
 
 
-def _generate_logs(scenario_id: str, service: str, now: datetime, rng):
+def _generate_logs(scenario_id: str, service: str, now: datetime):
     """Generate scenario-specific log entries."""
     log_templates = {
         "db-connection-exhaustion": [
@@ -316,11 +315,11 @@ def _generate_logs(scenario_id: str, service: str, now: datetime, rng):
     ])
 
     for i, (level, message) in enumerate(templates * 3):
-        ts = now - timedelta(minutes=rng.randint(0, 10))
+        ts = now - timedelta(minutes=random.randint(0, 10))
         telemetry_store.add_log(service, level, message, ts)
 
 
-def _generate_traces(scenario_id: str, service: str, now: datetime, rng):
+def _generate_traces(scenario_id: str, service: str, now: datetime):
     """Generate scenario-specific trace spans."""
     operations = {
         "db-connection-exhaustion": [
@@ -353,6 +352,6 @@ def _generate_traces(scenario_id: str, service: str, now: datetime, rng):
                 trace_id=uuid.uuid4().hex[:16],
                 service=service,
                 operation=op,
-                duration_ms=duration + rng.randint(-100, 100),
+                duration_ms=duration + random.randint(-100, 100),
                 status=status,
             )

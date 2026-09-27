@@ -108,8 +108,6 @@ The repository contains an evaluation data model and API for recording benchmark
 
 Before publishing model-performance claims, add a fixed, versioned evaluation dataset and report the evaluation methodology, dataset composition, exact-match criteria, and reproducible results.
 
-See [Evaluation Protocol](docs/evaluation.md) for the benchmark requirements.
-
 ## Technology stack
 
 | Layer | Technology |
@@ -139,7 +137,7 @@ aegis/
 │   ├── tests/                  # Unit and integration tests
 │   └── alembic/                # Database migrations
 ├── frontend/                   # React operations dashboard
-├── docs/                       # Architecture, evaluation, runbooks, ADRs
+├── docs/                       # Architecture, runbooks, ADRs
 ├── scripts/                    # Seed/demo utilities
 ├── .github/workflows/          # CI/CD and CodeQL
 ├── docker-compose.yml
@@ -204,17 +202,6 @@ curl -X POST http://localhost:8000/api/simulator/scenarios/db-connection-exhaust
 curl http://localhost:8000/api/incidents?status=investigating \
   -H "Authorization: Bearer <token>"
 ```
-
-## Verification
-
-The intended review sequence is documented in [Reviewer Guide](docs/reviewer-guide.md):
-
-1. Read the architecture and incident lifecycle.
-2. Inspect the LangGraph state machine and tool boundaries.
-3. Inspect RAG retrieval and the pgvector schema.
-4. Inspect remediation authorization and audit logging.
-5. Run the failure simulator.
-6. Review the evaluation protocol before interpreting metrics.
 
 ## CI and security
 

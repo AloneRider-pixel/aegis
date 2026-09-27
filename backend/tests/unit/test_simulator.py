@@ -62,16 +62,3 @@ class TestTelemetryStore:
         telemetry_store.reset()
         metrics = telemetry_store.get_metrics("svc")
         assert len(metrics) == 0
-
-
-def test_seeded_scenario_is_reproducible_in_core_metrics() -> None:
-    first = trigger_scenario("db-connection-exhaustion", seed=1234)
-    first_metrics = telemetry_store.get_metrics("checkout-service", time_range_minutes=60)
-    first_values = {name: [point["value"] for point in values] for name, values in first_metrics.items()}
-
-    second = trigger_scenario("db-connection-exhaustion", seed=1234)
-    second_metrics = telemetry_store.get_metrics("checkout-service", time_range_minutes=60)
-    second_values = {name: [point["value"] for point in values] for name, values in second_metrics.items()}
-
-    assert first["scenario"]["id"] == second["scenario"]["id"]
-    assert first_values == second_values
