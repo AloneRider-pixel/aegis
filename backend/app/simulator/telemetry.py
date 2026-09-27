@@ -42,8 +42,9 @@ class TelemetryStore:
                 "metric": metric_name,
             })
 
-    def get_metrics(self, service: str, time_range_minutes: int = 30) -> dict[str, list]:
-        cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
+    def get_metrics(self, service: str, time_range_minutes: int = 30, as_of: datetime | None = None) -> dict[str, list]:
+        reference_time = as_of or datetime.utcnow()
+        cutoff = reference_time - timedelta(minutes=time_range_minutes)
         result = {}
         with self._lock:
             for key, entries in self._metrics.items():
@@ -81,8 +82,10 @@ class TelemetryStore:
         query: str | None = None,
         time_range_minutes: int = 30,
         limit: int = 50,
+        as_of: datetime | None = None,
     ) -> list[dict]:
-        cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
+        reference_time = as_of or datetime.utcnow()
+        cutoff = reference_time - timedelta(minutes=time_range_minutes)
         with self._lock:
             results = []
             for log in self._logs:
@@ -117,8 +120,10 @@ class TelemetryStore:
         service_name: str | None = None,
         slow_only: bool = True,
         time_range_minutes: int = 30,
+        as_of: datetime | None = None,
     ) -> list[dict]:
-        cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
+        reference_time = as_of or datetime.utcnow()
+        cutoff = reference_time - timedelta(minutes=time_range_minutes)
         with self._lock:
             results = []
             for trace in self._traces:
@@ -148,8 +153,9 @@ class TelemetryStore:
                 "recent": True,
             })
 
-    def get_deployments(self, service_name: str | None = None, hours: int = 24) -> list[dict]:
-        cutoff = datetime.utcnow() - timedelta(hours=hours)
+    def get_deployments(self, service_name: str | None = None, hours: int = 24, as_of: datetime | None = None) -> list[dict]:
+        reference_time = as_of or datetime.utcnow()
+        cutoff = reference_time - timedelta(hours=hours)
         with self._lock:
             results = []
             for dep in self._deployments:
