@@ -1,4 +1,4 @@
-.PHONY: dev dev-down test lint migrate seed demo eval clean
+.PHONY: dev dev-down test lint migrate seed demo eval verify clean
 
 dev:
 	docker compose up -d
@@ -30,6 +30,9 @@ demo:
 
 eval:
 	docker compose exec backend python -m scripts.run_evaluation
+
+verify: lint test
+	@echo "Aegis verification passed."
 
 clean:
 	docker compose down -v
