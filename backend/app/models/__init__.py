@@ -1,4 +1,5 @@
 """Database models for the Aegis platform."""
+
 import uuid
 from enum import Enum as PyEnum
 
@@ -21,6 +22,7 @@ from sqlalchemy.sql import func
 from app.database import Base
 
 # ─── Enums ───
+
 
 class IncidentStatus(str, PyEnum):
     DETECTED = "detected"
@@ -51,9 +53,10 @@ class UserRole(str, PyEnum):
 
 # ─── User Model ───
 
+
 class User(Base):
     __tablename__ = "users"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False, index=True)
@@ -66,9 +69,10 @@ class User(Base):
 
 # ─── Service Model ───
 
+
 class Service(Base):
     __tablename__ = "services"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False, unique=True)
@@ -82,9 +86,10 @@ class Service(Base):
 
 # ─── Incident Model ───
 
+
 class Incident(Base):
     __tablename__ = "incidents"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(500), nullable=False)
@@ -92,8 +97,11 @@ class Incident(Base):
     # ⚡ Bolt Optimization: Added index=True to severity, status, and created_at to speed up list_incidents filtering and sorting
     severity = Column(Enum(Severity), nullable=False, index=True)
     status = Column(Enum(IncidentStatus), default=IncidentStatus.DETECTED, index=True)
+    # ⚡ Bolt Optimization: Added index=True to prevent O(N) sequential scans during joins
     service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)
+    # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
+    service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)
     environment = Column(String(50), default="production")
     source = Column(String(100))  # "auto_detected", "manual", "simulator"
 
@@ -141,9 +149,10 @@ class Incident(Base):
 
 # ─── Incident Event (Audit Trail) ───
 
+
 class IncidentEvent(Base):
     __tablename__ = "incident_events"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     # ⚡ Bolt Optimization: Added index=True because Postgres doesn't auto-index foreign keys. This speeds up get_incident_events.
@@ -151,7 +160,9 @@ class IncidentEvent(Base):
     # ⚡ Bolt Optimization: Added index=True to foreign keys to prevent O(N) sequential scans during joins/queries
     # Performance Optimization: Added index=True to significantly speed up loading incident history/events
     incident_id = Column(UUID(as_uuid=True), ForeignKey("incidents.id"), nullable=False, index=True)
-    event_type = Column(String(100), nullable=False)  # "status_change", "ai_step", "tool_call", "remediation"
+    event_type = Column(
+        String(100), nullable=False
+    )  # "status_change", "ai_step", "tool_call", "remediation"
     previous_status = Column(String(50))
     new_status = Column(String(50))
     actor = Column(String(255))  # "system", "user:email", "ai-agent"
@@ -163,9 +174,10 @@ class IncidentEvent(Base):
 
 # ─── Knowledge Document ───
 
+
 class Document(Base):
     __tablename__ = "documents"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(500), nullable=False)
@@ -182,7 +194,7 @@ class Document(Base):
 
 class DocumentChunk(Base):
     __tablename__ = "document_chunks"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     # Performance optimization: Adding index=True for foreign keys prevents O(N) sequential scans during JOINs
@@ -197,9 +209,10 @@ class DocumentChunk(Base):
 
 # ─── Audit Log ───
 
+
 class AuditLog(Base):
     __tablename__ = "audit_logs"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True))
@@ -208,14 +221,16 @@ class AuditLog(Base):
     resource_id = Column(String(255))
     details = Column(JSON, default=dict)
     ip_address = Column(String(50))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True for desc(AuditLog.created_at) queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
 # ─── Evaluation ───
 
+
 class EvaluationRun(Base):
     __tablename__ = "evaluation_runs"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     dataset_name = Column(String(100), nullable=False)
@@ -227,4 +242,5 @@ class EvaluationRun(Base):
     total_cost_usd = Column(Float)
     total_tokens = Column(Integer)
     results = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True for desc(EvaluationRun.created_at) queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
