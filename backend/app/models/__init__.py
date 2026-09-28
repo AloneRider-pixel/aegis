@@ -167,7 +167,8 @@ class IncidentEvent(Base):
     new_status = Column(String(50))
     actor = Column(String(255))  # "system", "user:email", "ai-agent"
     details = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # ⚡ Bolt Optimization: Added index=True to speed up desc(IncidentEvent.created_at) sorting in get_incident_events
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
     incident = relationship("Incident", back_populates="events")
 
