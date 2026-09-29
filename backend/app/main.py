@@ -80,10 +80,10 @@ app.add_middleware(
 # ─── Auth Dependency ───
 
 async def get_current_user(authorization: str | None = Header(None)) -> dict:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing authentication")
-    token = authorization.split(" ")[1]
-    payload = decode_token(token)
+    parts = authorization.split() if authorization else []
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Invalid authentication header")
+    payload = decode_token(parts[1])
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return payload
@@ -238,15 +238,18 @@ async def start_investigation(
     # Transition to investigating
     await transition_incident(db, incident_id, "investigating", actor=f"user:{user.get('email', 'unknown')}")
 
-    # Run the AI agent
+    # Run the AI agent with the service actually attached to the incident.
     from app.ai.agent.graph import investigation_graph
+
+    service = await db.get(Service, incident.service_id) if incident.service_id else None
+    service_name = service.name if service else "unknown-service"
 
     initial_state = {
         "incident_id": incident_id,
         "incident_title": incident.title,
         "incident_description": incident.description or "",
         "severity": incident.severity.value,
-        "service_name": "checkout-service",  # Default; in prod, get from service_id
+        "service_name": service_name,
         "symptoms": incident.symptoms or [],
         "current_phase": "understand",
         "metrics_data": [],
