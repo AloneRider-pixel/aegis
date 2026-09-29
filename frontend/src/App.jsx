@@ -35,7 +35,7 @@ function Login({ onLogin }) {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">
       <div className="w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <span className="text-5xl">🛡️</span>
+          <span className="text-5xl" aria-hidden="true">🛡️</span>
           <h1 className="text-2xl font-bold text-white mt-4">Aegis</h1>
           <p className="text-gray-400 text-sm mt-1">AI Incident Response Platform</p>
         </div>
@@ -389,15 +389,16 @@ export default function App() {
       {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">🛡️</span>
+          <span className="text-2xl" aria-hidden="true">🛡️</span>
           <div>
             <h1 className="text-lg font-bold text-white">Aegis</h1>
             <p className="text-xs text-gray-500">AI Incident Response Platform</p>
           </div>
         </div>
-        <nav className="flex gap-1 bg-gray-800 rounded-lg p-1">
+        <nav aria-label="Main navigation" className="flex gap-1 bg-gray-800 rounded-lg p-1">
           {[['dashboard', '📊 Dashboard'], ['incidents', '🚨 Incidents'], ['simulator', '⚡ Simulator']].map(([id, label]) => (
             <button key={id} onClick={() => setPage(id)}
+              aria-current={page === id ? 'page' : undefined}
               className={`px-4 py-1.5 rounded-md text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${page === id ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}>
               {label}
             </button>
