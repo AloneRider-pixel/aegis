@@ -81,9 +81,15 @@ app.add_middleware(
 # ─── Auth Dependency ───
 
 async def get_current_user(authorization: str | None = Header(None)) -> dict:
-    parts = authorization.split() if authorization else []
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(status_code=401, detail="Invalid authentication header")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authentication")
+
+    parts = authorization.split()
+    if not parts or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Missing authentication")
+    if len(parts) != 2:
+        raise HTTPException(status_code=401, detail="Missing authentication")
+
     payload = decode_token(parts[1])
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
