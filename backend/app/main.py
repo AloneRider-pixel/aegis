@@ -10,12 +10,13 @@ import time
 from collections import defaultdict
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from redis.asyncio import Redis
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import create_token, decode_token, hash_password, verify_password
 from app.config import settings
-from app.database import async_session, get_db, init_db
+from app.database import async_session, engine, get_db, init_db
 from app.models import AuditLog, Document, EvaluationRun, Service, User, UserRole
 from app.schemas import *
 from app.services.incident_service import (
@@ -80,10 +81,16 @@ app.add_middleware(
 # ─── Auth Dependency ───
 
 async def get_current_user(authorization: str | None = Header(None)) -> dict:
-    if not authorization or not authorization.startswith("Bearer "):
+    if not authorization:
         raise HTTPException(status_code=401, detail="Missing authentication")
-    token = authorization.split(" ")[1]
-    payload = decode_token(token)
+
+    parts = authorization.split()
+    if not parts or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Missing authentication")
+    if len(parts) != 2:
+        raise HTTPException(status_code=401, detail="Missing authentication")
+
+    payload = decode_token(parts[1])
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return payload
@@ -93,9 +100,33 @@ async def get_current_user(authorization: str | None = Header(None)) -> dict:
 
 @app.get("/health", response_model=HealthResponse)
 async def health():
+    database_status = "connected"
+    redis_status = "connected"
+
+    try:
+        async with engine.connect() as connection:
+            await connection.execute(text("SELECT 1"))
+    except Exception:
+        database_status = "unavailable"
+
+    redis_client = Redis.from_url(settings.redis_url)
+    try:
+        await redis_client.ping()
+    except Exception:
+        redis_status = "unavailable"
+    finally:
+        await redis_client.aclose()
+
+    overall_status = (
+        "healthy"
+        if database_status == "connected" and redis_status == "connected"
+        else "degraded"
+    )
     return HealthResponse(
-        status="healthy", version="1.0.0",
-        database="connected", redis="connected",
+        status=overall_status,
+        version="1.0.0",
+        database=database_status,
+        redis=redis_status,
         llm_provider=settings.llm_provider,
     )
 
@@ -238,15 +269,18 @@ async def start_investigation(
     # Transition to investigating
     await transition_incident(db, incident_id, "investigating", actor=f"user:{user.get('email', 'unknown')}")
 
-    # Run the AI agent
+    # Run the AI agent with the service actually attached to the incident.
     from app.ai.agent.graph import investigation_graph
+
+    service = await db.get(Service, incident.service_id) if incident.service_id else None
+    service_name = service.name if service else "unknown-service"
 
     initial_state = {
         "incident_id": incident_id,
         "incident_title": incident.title,
         "incident_description": incident.description or "",
         "severity": incident.severity.value,
-        "service_name": "checkout-service",  # Default; in prod, get from service_id
+        "service_name": service_name,
         "symptoms": incident.symptoms or [],
         "current_phase": "understand",
         "metrics_data": [],
