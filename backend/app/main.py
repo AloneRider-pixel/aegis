@@ -10,12 +10,13 @@ import time
 from collections import defaultdict
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from redis.asyncio import Redis
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import create_token, decode_token, hash_password, verify_password
 from app.config import settings
-from app.database import async_session, get_db, init_db
+from app.database import async_session, engine, get_db, init_db
 from app.models import AuditLog, Document, EvaluationRun, Service, User, UserRole
 from app.schemas import *
 from app.services.incident_service import (
@@ -93,9 +94,33 @@ async def get_current_user(authorization: str | None = Header(None)) -> dict:
 
 @app.get("/health", response_model=HealthResponse)
 async def health():
+    database_status = "connected"
+    redis_status = "connected"
+
+    try:
+        async with engine.connect() as connection:
+            await connection.execute(text("SELECT 1"))
+    except Exception:
+        database_status = "unavailable"
+
+    redis_client = Redis.from_url(settings.redis_url)
+    try:
+        await redis_client.ping()
+    except Exception:
+        redis_status = "unavailable"
+    finally:
+        await redis_client.aclose()
+
+    overall_status = (
+        "healthy"
+        if database_status == "connected" and redis_status == "connected"
+        else "degraded"
+    )
     return HealthResponse(
-        status="healthy", version="1.0.0",
-        database="connected", redis="connected",
+        status=overall_status,
+        version="1.0.0",
+        database=database_status,
+        redis=redis_status,
         llm_provider=settings.llm_provider,
     )
 
