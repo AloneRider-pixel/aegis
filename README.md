@@ -1,38 +1,37 @@
-# 🛡️ Aegis
+# Aegis — AI Production Reliability & Incident Response
 
 [![CI](https://github.com/AloneRider-pixel/aegis/actions/workflows/ci.yml/badge.svg)](https://github.com/AloneRider-pixel/aegis/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/AloneRider-pixel/aegis/actions/workflows/codeql.yml/badge.svg)](https://github.com/AloneRider-pixel/aegis/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-AI-powered production-reliability and incident-response platform that correlates telemetry, operational knowledge, and controlled remediation workflows.
+AI-assisted incident-response reference platform that correlates telemetry, operational knowledge, and controlled remediation while keeping execution authority behind explicit approval.
 
-## Core principle
+## Core operating model
 
 ```text
 Telemetry
    ↓
 Incident
    ↓
-Evidence-backed AI investigation
+Evidence-backed investigation
    ↓
 Remediation recommendation
    ↓
-Explicit human approval
+Human approval
    ↓
 Execution + audit trail
 ```
 
-The investigation system can inspect telemetry, deployments, runbooks, and incident history, but impactful remediation remains approval-gated.
+## Engineering capabilities
 
-## Engineering highlights
-
-- LangGraph investigation state machine.
+- LangGraph investigation workflows.
 - Metrics, logs, traces, deployment, runbook, and incident-history tools.
 - Hybrid RAG with pgvector and metadata filters.
 - Prompt-injection defenses for untrusted operational content.
 - Validated incident state transitions and audit logging.
-- Reproducible synthetic failure simulator.
-- JWT/RBAC, rate limiting, CodeQL, dependency review, and CI/CD.
+- Reproducible failure simulation.
+- JWT/RBAC, rate limiting, CodeQL, dependency review, CI/CD.
+- React/Vite operations dashboard.
 
 ## Architecture
 
@@ -45,12 +44,8 @@ graph TB
     AGENT --> RAG[RAG]
     RAG --> PG[(PostgreSQL + pgvector)]
     INC --> REDIS[(Redis)]
-    SIM[Failure Simulator] --> TEL[Telemetry Store]
+    SIM[Failure Simulator] --> TEL[Telemetry]
 ```
-
-## Evaluation integrity
-
-The current evaluation endpoint generates synthetic demo metrics for workflow/UI validation. Those values are not presented as statistically valid model benchmarks. Publish model-quality results only with a fixed dataset, explicit methodology, and reproducible artifacts.
 
 ## Stack
 
@@ -60,7 +55,7 @@ The current evaluation endpoint generates synthetic demo metrics for workflow/UI
 | AI | LangGraph, configurable LLM provider |
 | RAG | pgvector, sentence-transformers |
 | Data | PostgreSQL 16, Redis 7 |
-| Frontend | React, TypeScript, Vite, TailwindCSS |
+| Frontend | React, TypeScript, Vite, Tailwind CSS |
 | Observability | OpenTelemetry, structured logging |
 | Testing | Pytest, Playwright, Locust |
 | Delivery | Docker, Kubernetes, Terraform, GitHub Actions |
@@ -89,32 +84,27 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
-## Demo scenario
+CI validates the backend/frontend quality surface together with CodeQL, dependency review, and Scorecard.
 
-The failure simulator includes a reproducible database-connection-exhaustion scenario designed for safe investigation demos without touching a real production system.
+## Safety model
 
-## Security
+Incident telemetry, logs, runbooks, and model output are untrusted inputs. Investigation may inspect them, but impactful remediation must remain separately authorized and auditable.
 
-Keep LLM credentials and infrastructure credentials outside source control. Treat telemetry, runbooks, logs, and model output as untrusted data. Keep remediation tool access explicitly authorized and auditable.
+## Evaluation integrity
 
-## Review path
+The current evaluation endpoint generates synthetic demo values for workflow/UI validation. Those values are not production model benchmarks. Any public quality result should include a fixed dataset, methodology, environment, sample count, and producing commit.
 
-Start with [architecture](docs/architecture.md), [verification](docs/verification.md), and the backend authorization/remediation tests before changing tool permissions.
+## Documentation
 
-## Evidence policy
-
-Measured claims should identify dataset/workload, methodology, environment, sample size, and producing commit. See [Evidence Policy](docs/evidence-policy.md) where applicable.
+- [Architecture](docs/architecture.md)
+- [System architecture](docs/architecture/system.md)
+- [Verification](docs/verification.md)
+- [Evidence policy](docs/evidence-policy.md)
+- [Security](SECURITY.md)
 
 ## Roadmap
 
-- Fixed, versioned evaluation dataset.
-- Async investigation jobs and persistent history.
-- Broader telemetry adapters.
-- Model-cost telemetry and stronger adversarial regression coverage.
-
-## Maintenance standard
-
-Never conflate investigation evidence with execution authority. Any permission expansion requires corresponding authorization and audit coverage.
+Versioned evaluation datasets, asynchronous investigations, broader telemetry adapters, cost telemetry, and stronger adversarial regression coverage.
 
 ## License
 
