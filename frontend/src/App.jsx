@@ -228,12 +228,25 @@ function IncidentsPage() {
   const [investigatingId, setInvestigatingId] = useState(null)
   const [approvingId, setApprovingId] = useState(null)
   const [investigationResult, setInvestigationResult] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const loadIncidents = () => {
-    fetch(`${API}/incidents?limit=20`, { headers: getHeaders() }).then(r => r.json()).then(d => setIncidents(d.incidents || []))
+  const loadIncidents = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(`${API}/incidents?limit=20`, { headers: getHeaders() })
+      if (!res.ok) throw new Error('Failed to load incidents')
+      const data = await res.json()
+      setIncidents(Array.isArray(data.incidents) ? data.incidents : [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load incidents')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  useEffect(loadIncidents, [])
+  useEffect(() => { loadIncidents() }, [])
 
   const investigate = async (id) => {
     setInvestigatingId(id)
@@ -290,7 +303,21 @@ function IncidentsPage() {
               )}
             </div>
           ))}
-          {incidents.length === 0 && (
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-800 rounded-xl bg-gray-900/50 text-center" role="status" aria-live="polite">
+              <p className="text-gray-400 text-sm">Loading incidents...</p>
+            </div>
+          )}
+          {error && !isLoading && (
+            <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-red-800 rounded-xl bg-red-900/20 text-center" role="alert">
+              <p className="text-red-400 font-medium">Failed to load incidents</p>
+              <p className="text-red-300 text-sm mt-1 mb-4">{error}</p>
+              <button onClick={loadIncidents} className="px-4 py-2 bg-red-600/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-600/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
+                Retry Loading
+              </button>
+            </div>
+          )}
+          {incidents.length === 0 && !isLoading && !error && (
             <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-800 rounded-xl bg-gray-900/50 text-center">
               <span className="text-3xl mb-3" aria-hidden="true">🛡️</span>
               <p className="text-gray-300 font-medium">All clear! No incidents currently detected.</p>
