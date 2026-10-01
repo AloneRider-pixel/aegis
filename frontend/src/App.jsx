@@ -221,6 +221,52 @@ function SimulatorPage() {
   )
 }
 
+
+// ─── Incident Card ───
+// OPTIMIZATION: Extracted and memoized list item to prevent O(n) re-renders when parent state updates.
+const IncidentCard = React.memo(function IncidentCard({
+  inc,
+  isSelected,
+  isInvestigating,
+  isApproving,
+  onSelect,
+  onInvestigate,
+  onApprove
+}) {
+
+  return (
+    <div onClick={() => onSelect(inc)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(inc);
+        }
+      }}
+      className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isSelected ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
+      <div className="flex justify-between items-start">
+        <SeverityBadge severity={inc.severity} />
+        <StatusBadge status={inc.status} />
+      </div>
+      <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
+      {inc.status === 'detected' && (
+        <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
+          className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          {isInvestigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+        </button>
+      )}
+      {inc.status === 'awaiting_approval' && (
+        <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
+          className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+          {isApproving ? '⏳ Approving...' : '✅ Approve Remediation'}
+        </button>
+      )}
+    </div>
+  );
+});
+
 // ─── Incidents Page ───
 function IncidentsPage() {
   const [incidents, setIncidents] = useState([])
@@ -231,7 +277,7 @@ function IncidentsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const loadIncidents = async () => {
+  const loadIncidents = React.useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
@@ -244,11 +290,12 @@ function IncidentsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => { loadIncidents() }, [])
 
-  const investigate = async (id) => {
+  // OPTIMIZATION: Memoized callback to prevent recreating function reference on every render, allowing IncidentCard memoization to work.
+  const investigate = React.useCallback(async (id) => {
     setInvestigatingId(id)
     setInvestigationResult(null)
     try {
@@ -258,14 +305,15 @@ function IncidentsPage() {
       loadIncidents()
     } catch (err) { setInvestigationResult({ error: err.message }) }
     setInvestigatingId(null)
-  }
+  }, [loadIncidents])
 
-  const approve = async (id) => {
+  // OPTIMIZATION: Memoized callback to prevent recreating function reference on every render, allowing IncidentCard memoization to work.
+  const approve = React.useCallback(async (id) => {
     setApprovingId(id)
     await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
     loadIncidents()
     setApprovingId(null)
-  }
+  }, [loadIncidents])
 
   return (
     <div className="flex gap-6">
@@ -273,35 +321,16 @@ function IncidentsPage() {
         <h2 className="text-xl font-bold text-white mb-4">Incidents</h2>
         <div className="space-y-2">
           {incidents.map(inc => (
-            <div key={inc.id} onClick={() => setSelected(inc)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setSelected(inc);
-                }
-              }}
-              className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${selected?.id === inc.id ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
-              <div className="flex justify-between items-start">
-                <SeverityBadge severity={inc.severity} />
-                <StatusBadge status={inc.status} />
-              </div>
-              <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
-              {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
-              {inc.status === 'detected' && (
-                <button onClick={(e) => { e.stopPropagation(); investigate(inc.id) }} disabled={investigatingId === inc.id}
-                  className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                  {investigatingId === inc.id ? '🔄 Investigating...' : '🤖 Investigate with AI'}
-                </button>
-              )}
-              {inc.status === 'awaiting_approval' && (
-                <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }} disabled={approvingId === inc.id}
-                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-                  {approvingId === inc.id ? '⏳ Approving...' : '✅ Approve Remediation'}
-                </button>
-              )}
-            </div>
+            <IncidentCard
+              key={inc.id}
+              inc={inc}
+              isSelected={selected?.id === inc.id}
+              isInvestigating={investigatingId === inc.id}
+              isApproving={approvingId === inc.id}
+              onSelect={setSelected}
+              onInvestigate={investigate}
+              onApprove={approve}
+            />
           ))}
           {isLoading && (
             <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-800 rounded-xl bg-gray-900/50 text-center" role="status" aria-live="polite">
