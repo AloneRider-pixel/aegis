@@ -220,3 +220,11 @@ Runtime secrets are provided through environment variables and are not intended 
 ## License
 
 MIT
+
+## Repository review path
+
+Start with [architecture](docs/architecture.md) and [verification](docs/verification.md), then review the backend authorization and remediation tests before changing tool permissions. The repository's CI, CodeQL, dependency review, and Scorecard workflows are the primary automated gates.
+
+## Maintenance standard
+
+Keep investigation evidence separate from execution authority. Any change that expands tool permissions or remediation scope should add explicit authorization coverage and auditability.
