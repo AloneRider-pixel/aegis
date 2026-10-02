@@ -7,6 +7,15 @@ function getHeaders() {
   return { 'Content-Type': 'application/json', ...(token && { Authorization: `Bearer ${token}` }) }
 }
 
+function Spinner() {
+  return (
+    <svg className="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  );
+}
+
 // ─── Login Page ───
 function Login({ onLogin }) {
   const [email, setEmail] = useState('admin@aegis.io')
@@ -50,7 +59,7 @@ function Login({ onLogin }) {
   </div>
   {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
   <button type="submit" disabled={isLoggingIn} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-    {isLoggingIn ? 'Signing In...' : 'Sign In'}
+    {isLoggingIn ? <span className="flex items-center justify-center gap-2"><Spinner /> Signing In...</span> : 'Sign In'}
   </button>
 </form>
       </div>
@@ -199,7 +208,7 @@ function SimulatorPage() {
             </div>
             <button onClick={() => trigger(s.id)} disabled={triggering === s.id}
               className="mt-3 w-full py-2 bg-red-600/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
-              {triggering === s.id ? 'Triggering...' : '⚡ Trigger Scenario'}
+              {triggering === s.id ? <span className="flex items-center justify-center gap-2"><Spinner /> Triggering...</span> : '⚡ Trigger Scenario'}
             </button>
           </div>
         ))}
@@ -292,13 +301,13 @@ function IncidentsPage() {
               {inc.status === 'detected' && (
                 <button onClick={(e) => { e.stopPropagation(); investigate(inc.id) }} disabled={investigatingId === inc.id}
                   className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                  {investigatingId === inc.id ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+                  {investigatingId === inc.id ? <span className="flex items-center justify-center gap-1.5"><Spinner /> Investigating...</span> : '🤖 Investigate with AI'}
                 </button>
               )}
               {inc.status === 'awaiting_approval' && (
                 <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }} disabled={approvingId === inc.id}
                   className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-                  {approvingId === inc.id ? '⏳ Approving...' : '✅ Approve Remediation'}
+                  {approvingId === inc.id ? <span className="flex items-center justify-center gap-1.5"><Spinner /> Approving...</span> : '✅ Approve Remediation'}
                 </button>
               )}
             </div>
