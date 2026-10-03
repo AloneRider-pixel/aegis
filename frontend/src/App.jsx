@@ -84,11 +84,16 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
 function DashboardPage({ user }) {
   const [incidents, setIncidents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     fetch(`${API}/incidents?limit=10`, { headers: getHeaders() })
-      .then(r => r.json()).then(d => { setIncidents(d.incidents || []); setLoading(false) })
-      .catch(() => setLoading(false))
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load dashboard data')
+        return r.json()
+      })
+      .then(d => { setIncidents(d.incidents || []); setLoading(false) })
+      .catch(e => { setError(e.message); setLoading(false) })
   }, [])
 
   // OPTIMIZATION: Memoized dashboard metrics and reduced 3 O(n) array loops (.filter) into a single O(n) loop to minimize computation time on re-renders.
@@ -139,6 +144,7 @@ function DashboardPage({ user }) {
           </tr></thead>
           <tbody>
             {loading ? <tr><td colSpan="5" className="px-4 py-8 text-center text-gray-500">Loading...</td></tr> :
+             error ? <tr><td colSpan="5" className="px-4 py-8"><div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-red-800 rounded-xl bg-red-900/20 text-center mx-4 my-2" role="alert"><p className="text-red-400 font-medium">Failed to load dashboard data</p><p className="text-red-300 text-sm mt-1">{error}</p></div></td></tr> :
              incidents.length === 0 ? <tr><td colSpan="5" className="px-4 py-12 text-center text-gray-500"><div className="flex flex-col items-center justify-center space-y-3"><span className="text-3xl" aria-hidden="true">🎉</span><div><p className="text-gray-300 font-medium">All clear! No incidents detected.</p><p className="text-sm mt-1">Trigger a scenario from the Simulator tab to get started.</p></div></div></td></tr> :
              incidents.map(inc => (
               <tr key={inc.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
