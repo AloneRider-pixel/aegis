@@ -16,3 +16,7 @@
 ## 2025-05-18 - SQLAlchemy Missing Index on Incident Foreign Key
 **Learning:** PostgreSQL does not automatically index foreign keys by default, leading to silent O(N) sequential scans during relationship queries or cascading deletes, which creates severe performance bottlenecks as tables grow. This applies not just generally, but specifically to `Incident.service_id`.
 **Action:** Always verify `index=True` is provided for all `ForeignKey` definitions in SQLAlchemy on postgres.
+
+## 2024-05-18 - Memoizing React List Item Components
+**Learning:** When using React.memo() on items in a mapped list, passing parent state directly (like `selectedId`) breaks memoization because any change to the parent state forces re-rendering of the entire list.
+**Action:** Compute boolean flags inside the map loop (e.g., `isSelected={selectedId === inc.id}`) and pass those instead, along with `useCallback` for functions, to preserve memoization and prevent O(N) re-renders.
