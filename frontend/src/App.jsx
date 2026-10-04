@@ -80,6 +80,42 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
   return <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[status] || 'bg-gray-700 text-gray-300'}`}>{status?.replace(/_/g, ' ')}</span>
 })
 
+
+// OPTIMIZATION: Extracted IncidentCard to React.memo to prevent O(N) re-renders when parent state updates.
+const IncidentCard = React.memo(function IncidentCard({ inc, isSelected, isInvestigating, isApproving, onSelect, onInvestigate, onApprove }) {
+  return (
+    <div onClick={() => onSelect(inc)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(inc);
+        }
+      }}
+      className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isSelected ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
+      <div className="flex justify-between items-start">
+        <SeverityBadge severity={inc.severity} />
+        <StatusBadge status={inc.status} />
+      </div>
+      <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
+      {inc.status === 'detected' && (
+        <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
+          className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          {isInvestigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+        </button>
+      )}
+      {inc.status === 'awaiting_approval' && (
+        <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
+          className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+          {isApproving ? '⏳ Approving...' : '✅ Approve Remediation'}
+        </button>
+      )}
+    </div>
+  )
+})
+
 // ─── Dashboard Page ───
 function DashboardPage({ user }) {
   const [incidents, setIncidents] = useState([])
@@ -283,7 +319,7 @@ function IncidentsPage() {
     }
   }, [])
 
-  useEffect(() => { loadIncidents() }, [])
+  useEffect(() => { loadIncidents() }, [loadIncidents])
 
   const investigate = React.useCallback(async (id) => {
     setInvestigatingId(id)
