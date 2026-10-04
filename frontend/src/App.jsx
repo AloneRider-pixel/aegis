@@ -89,15 +89,56 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
   return <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[status] || 'bg-gray-700 text-gray-300'}`}>{status?.replace(/_/g, ' ')}</span>
 })
 
+
+// OPTIMIZATION: Extracted IncidentCard to React.memo to prevent O(N) re-renders when parent state updates.
+const IncidentCard = React.memo(function IncidentCard({ inc, isSelected, isInvestigating, isApproving, onSelect, onInvestigate, onApprove }) {
+  return (
+    <div onClick={() => onSelect(inc)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(inc);
+        }
+      }}
+      className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isSelected ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
+      <div className="flex justify-between items-start">
+        <SeverityBadge severity={inc.severity} />
+        <StatusBadge status={inc.status} />
+      </div>
+      <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
+      {inc.status === 'detected' && (
+        <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
+          className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          {isInvestigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+        </button>
+      )}
+      {inc.status === 'awaiting_approval' && (
+        <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
+          className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+          {isApproving ? '⏳ Approving...' : '✅ Approve Remediation'}
+        </button>
+      )}
+    </div>
+  )
+})
+
 // ─── Dashboard Page ───
 function DashboardPage({ user }) {
   const [incidents, setIncidents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     fetch(`${API}/incidents?limit=10`, { headers: getHeaders() })
-      .then(r => r.json()).then(d => { setIncidents(d.incidents || []); setLoading(false) })
-      .catch(() => setLoading(false))
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load dashboard data')
+        return r.json()
+      })
+      .then(d => { setIncidents(d.incidents || []); setLoading(false) })
+      .catch(e => { setError(e.message); setLoading(false) })
   }, [])
 
   // OPTIMIZATION: Memoized dashboard metrics and reduced 3 O(n) array loops (.filter) into a single O(n) loop to minimize computation time on re-renders.
@@ -148,6 +189,7 @@ function DashboardPage({ user }) {
           </tr></thead>
           <tbody>
             {loading ? <tr><td colSpan="5" className="px-4 py-8 text-center text-gray-500">Loading...</td></tr> :
+             error ? <tr><td colSpan="5" className="px-4 py-8"><div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-red-800 rounded-xl bg-red-900/20 text-center mx-4 my-2" role="alert"><p className="text-red-400 font-medium">Failed to load dashboard data</p><p className="text-red-300 text-sm mt-1">{error}</p></div></td></tr> :
              incidents.length === 0 ? <tr><td colSpan="5" className="px-4 py-12 text-center text-gray-500"><div className="flex flex-col items-center justify-center space-y-3"><span className="text-3xl" aria-hidden="true">🎉</span><div><p className="text-gray-300 font-medium">All clear! No incidents detected.</p><p className="text-sm mt-1">Trigger a scenario from the Simulator tab to get started.</p></div></div></td></tr> :
              incidents.map(inc => (
               <tr key={inc.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
@@ -230,6 +272,42 @@ function SimulatorPage() {
   )
 }
 
+
+// OPTIMIZATION: Extracted and memoized IncidentItem to prevent O(N) re-renders when parent state changes.
+const IncidentItem = React.memo(function IncidentItem({ inc, isSelected, isInvestigating, isApproving, onSelect, onInvestigate, onApprove }) {
+  return (
+    <div onClick={() => onSelect(inc)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(inc);
+        }
+      }}
+      className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isSelected ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
+      <div className="flex justify-between items-start">
+        <SeverityBadge severity={inc.severity} />
+        <StatusBadge status={inc.status} />
+      </div>
+      <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
+      {inc.status === 'detected' && (
+        <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
+          className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          {isInvestigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+        </button>
+      )}
+      {inc.status === 'awaiting_approval' && (
+        <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
+          className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+          {isApproving ? '⏳ Approving...' : '✅ Approve Remediation'}
+        </button>
+      )}
+    </div>
+  )
+})
+
 // ─── Incidents Page ───
 function IncidentsPage() {
   const [incidents, setIncidents] = useState([])
@@ -239,8 +317,9 @@ function IncidentsPage() {
   const [investigationResult, setInvestigationResult] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [approveError, setApproveError] = useState(null)
 
-  const loadIncidents = async () => {
+  const loadIncidents = React.useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
@@ -253,11 +332,11 @@ function IncidentsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  useEffect(() => { loadIncidents() }, [])
+  useEffect(() => { loadIncidents() }, [loadIncidents])
 
-  const investigate = async (id) => {
+  const investigate = React.useCallback(async (id) => {
     setInvestigatingId(id)
     setInvestigationResult(null)
     try {
@@ -267,50 +346,47 @@ function IncidentsPage() {
       loadIncidents()
     } catch (err) { setInvestigationResult({ error: err.message }) }
     setInvestigatingId(null)
-  }
+  }, [loadIncidents])
 
-  const approve = async (id) => {
+  const approve = React.useCallback(async (id) => {
     setApprovingId(id)
-    await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
-    loadIncidents()
+    setApproveError(null)
+    try {
+      const res = await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
+      if (!res.ok) throw new Error('Failed to approve remediation')
+      loadIncidents()
+    } catch (err) {
+      setApproveError(err instanceof Error ? err.message : 'Failed to approve remediation')
+    }
     setApprovingId(null)
-  }
+  }, [loadIncidents])
+
+  const handleSelect = React.useCallback((inc) => {
+    setSelected(inc)
+  }, [])
 
   return (
     <div className="flex gap-6">
       <div className="w-1/2">
         <h2 className="text-xl font-bold text-white mb-4">Incidents</h2>
+        {approveError && (
+          <div role="alert" className="mb-4 bg-red-900/20 rounded-xl p-4 border border-red-800">
+            <h3 className="text-red-400 font-medium mb-1">❌ Approval Failed</h3>
+            <p className="text-red-300 text-sm">{approveError}</p>
+          </div>
+        )}
         <div className="space-y-2">
           {incidents.map(inc => (
-            <div key={inc.id} onClick={() => setSelected(inc)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setSelected(inc);
-                }
-              }}
-              className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${selected?.id === inc.id ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
-              <div className="flex justify-between items-start">
-                <SeverityBadge severity={inc.severity} />
-                <StatusBadge status={inc.status} />
-              </div>
-              <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
-              {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
-              {inc.status === 'detected' && (
-                <button onClick={(e) => { e.stopPropagation(); investigate(inc.id) }} disabled={investigatingId === inc.id}
-                  className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                  {investigatingId === inc.id ? <span className="flex items-center justify-center gap-1.5"><Spinner /> Investigating...</span> : '🤖 Investigate with AI'}
-                </button>
-              )}
-              {inc.status === 'awaiting_approval' && (
-                <button onClick={(e) => { e.stopPropagation(); approve(inc.id) }} disabled={approvingId === inc.id}
-                  className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-                  {approvingId === inc.id ? <span className="flex items-center justify-center gap-1.5"><Spinner /> Approving...</span> : '✅ Approve Remediation'}
-                </button>
-              )}
-            </div>
+            <IncidentItem
+              key={inc.id}
+              inc={inc}
+              isSelected={selected?.id === inc.id}
+              isInvestigating={investigatingId === inc.id}
+              isApproving={approvingId === inc.id}
+              onSelect={handleSelect}
+              onInvestigate={investigate}
+              onApprove={approve}
+            />
           ))}
           {isLoading && (
             <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-800 rounded-xl bg-gray-900/50 text-center" role="status" aria-live="polite">
