@@ -1,22 +1,3 @@
-## 2025-05-18 - PostgreSQL Foreign Key Missing Index Bottleneck
-**Learning:** PostgreSQL does not automatically index foreign keys like MySQL does. In incident response apps, fetching an incident timeline (e.g. `IncidentEvent` by `incident_id`) is highly frequent and will cause O(N) sequential scans without explicit indices.
-**Action:** Always verify that foreign keys in SQLAlchemy (`ForeignKey`) on frequently-queried relations include `index=True` explicitly.
-## 2025-02-18 - SQLAlchemy PostgreSQL Foreign Key Missing Index
-**Learning:** PostgreSQL does not automatically index foreign keys created by SQLAlchemy models. Traversing relationships caused full sequential scans.
-**Action:** Always ensure `index=True` is explicitly specified for `ForeignKey` relationships in SQLAlchemy when building heavily relation-queried endpoints.
-## 2024-05-18 - Missing SQLAlchemy Foreign Key Indexes
-**Learning:** PostgreSQL does not automatically index foreign keys by default, leading to O(N) sequential scans for relation lookups.
-**Action:** Always add `index=True` when defining SQLAlchemy ForeignKey relationships to ensure optimal performance.
-## 2024-05-14 - PostgreSQL Foreign Key Missing Indexes
-**Learning:** PostgreSQL does not automatically index foreign keys by default, which can result in slow O(N) sequential scans for joins and relationship queries. In the backend SQLAlchemy models, `ForeignKey` references were missing the `index=True` attribute.
-**Action:** When adding foreign key relationships in SQLAlchemy models backed by PostgreSQL, explicitly add `index=True` to prevent performance bottlenecks.
-## 2024-05-18 - Missing SQLAlchemy Index on Foreign Keys
-**Learning:** In SQLAlchemy models, PostgreSQL does not automatically index foreign keys by default, leading to silent O(N) sequential scans during relationship queries or cascading deletes, which creates severe performance bottlenecks as tables grow.
-**Action:** When designing or refactoring SQLAlchemy models involving `ForeignKey` constraints, ALWAYS explicitly specify `index=True` for those columns (e.g., `service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), index=True)`) unless you have a specific, measurable reason to avoid the index overhead.
-## 2025-05-18 - SQLAlchemy Missing Index on Incident Foreign Key
-**Learning:** PostgreSQL does not automatically index foreign keys by default, leading to silent O(N) sequential scans during relationship queries or cascading deletes, which creates severe performance bottlenecks as tables grow. This applies not just generally, but specifically to `Incident.service_id`.
-**Action:** Always verify `index=True` is provided for all `ForeignKey` definitions in SQLAlchemy on postgres.
-
-## 2024-05-18 - Memoizing React List Item Components
-**Learning:** When using React.memo() on items in a mapped list, passing parent state directly (like `selectedId`) breaks memoization because any change to the parent state forces re-rendering of the entire list.
-**Action:** Compute boolean flags inside the map loop (e.g., `isSelected={selectedId === inc.id}`) and pass those instead, along with `useCallback` for functions, to preserve memoization and prevent O(N) re-renders.
+## 2024-10-04 - Unnecessary O(N) Re-renders on List Selection
+**Learning:** In React, passing dynamically generated values (like objects or functions that change on every render) or deriving boolean props (like `isSelected`) directly within an inline `map` loop function body will cause every item in the list to re-render when the parent's state changes.
+**Action:** Extract list items into separate components wrapped in `React.memo()`, pass primitive boolean flags (like `isSelected={selectedId === item.id}`), and stabilize callback references using `React.useCallback()` to prevent O(N) re-renders.

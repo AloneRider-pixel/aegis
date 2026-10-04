@@ -257,6 +257,42 @@ function SimulatorPage() {
   )
 }
 
+
+// OPTIMIZATION: Extracted and memoized IncidentItem to prevent O(N) re-renders when parent state changes.
+const IncidentItem = React.memo(function IncidentItem({ inc, isSelected, isInvestigating, isApproving, onSelect, onInvestigate, onApprove }) {
+  return (
+    <div onClick={() => onSelect(inc)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(inc);
+        }
+      }}
+      className={`p-4 rounded-xl border cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isSelected ? 'bg-blue-900/20 border-blue-700' : 'bg-gray-900 border-gray-800 hover:border-gray-700'}`}>
+      <div className="flex justify-between items-start">
+        <SeverityBadge severity={inc.severity} />
+        <StatusBadge status={inc.status} />
+      </div>
+      <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
+      {inc.status === 'detected' && (
+        <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
+          className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          {isInvestigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+        </button>
+      )}
+      {inc.status === 'awaiting_approval' && (
+        <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
+          className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+          {isApproving ? '⏳ Approving...' : '✅ Approve Remediation'}
+        </button>
+      )}
+    </div>
+  )
+})
+
 // ─── Incidents Page ───
 function IncidentsPage() {
   const [incidents, setIncidents] = useState([])
@@ -266,6 +302,7 @@ function IncidentsPage() {
   const [investigationResult, setInvestigationResult] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [approveError, setApproveError] = useState(null)
 
   const loadIncidents = React.useCallback(async () => {
     setIsLoading(true)
@@ -298,24 +335,40 @@ function IncidentsPage() {
 
   const approve = React.useCallback(async (id) => {
     setApprovingId(id)
-    await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
-    loadIncidents()
+    setApproveError(null)
+    try {
+      const res = await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
+      if (!res.ok) throw new Error('Failed to approve remediation')
+      loadIncidents()
+    } catch (err) {
+      setApproveError(err instanceof Error ? err.message : 'Failed to approve remediation')
+    }
     setApprovingId(null)
   }, [loadIncidents])
+
+  const handleSelect = React.useCallback((inc) => {
+    setSelected(inc)
+  }, [])
 
   return (
     <div className="flex gap-6">
       <div className="w-1/2">
         <h2 className="text-xl font-bold text-white mb-4">Incidents</h2>
+        {approveError && (
+          <div role="alert" className="mb-4 bg-red-900/20 rounded-xl p-4 border border-red-800">
+            <h3 className="text-red-400 font-medium mb-1">❌ Approval Failed</h3>
+            <p className="text-red-300 text-sm">{approveError}</p>
+          </div>
+        )}
         <div className="space-y-2">
           {incidents.map(inc => (
-            <IncidentCard
+            <IncidentItem
               key={inc.id}
               inc={inc}
               isSelected={selected?.id === inc.id}
               isInvestigating={investigatingId === inc.id}
               isApproving={approvingId === inc.id}
-              onSelect={setSelected}
+              onSelect={handleSelect}
               onInvestigate={investigate}
               onApprove={approve}
             />
