@@ -230,6 +230,7 @@ function IncidentsPage() {
   const [investigationResult, setInvestigationResult] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [approveError, setApproveError] = useState(null)
 
   const loadIncidents = async () => {
     setIsLoading(true)
@@ -262,8 +263,14 @@ function IncidentsPage() {
 
   const approve = async (id) => {
     setApprovingId(id)
-    await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
-    loadIncidents()
+    setApproveError(null)
+    try {
+      const res = await fetch(`${API}/incidents/${id}/approve-remediation`, { method: 'POST', headers: { ...getHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify({ approved: true }) })
+      if (!res.ok) throw new Error('Failed to approve remediation')
+      loadIncidents()
+    } catch (err) {
+      setApproveError(err instanceof Error ? err.message : 'Failed to approve remediation')
+    }
     setApprovingId(null)
   }
 
@@ -271,6 +278,12 @@ function IncidentsPage() {
     <div className="flex gap-6">
       <div className="w-1/2">
         <h2 className="text-xl font-bold text-white mb-4">Incidents</h2>
+        {approveError && (
+          <div role="alert" className="mb-4 bg-red-900/20 rounded-xl p-4 border border-red-800">
+            <h3 className="text-red-400 font-medium mb-1">❌ Approval Failed</h3>
+            <p className="text-red-300 text-sm">{approveError}</p>
+          </div>
+        )}
         <div className="space-y-2">
           {incidents.map(inc => (
             <div key={inc.id} onClick={() => setSelected(inc)}
