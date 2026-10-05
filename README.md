@@ -4,9 +4,13 @@
 [![CodeQL](https://github.com/AloneRider-pixel/aegis/actions/workflows/codeql.yml/badge.svg)](https://github.com/AloneRider-pixel/aegis/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-AI-assisted incident-response reference platform that correlates telemetry, operational knowledge, and controlled remediation while keeping execution authority behind explicit approval.
+A production-oriented incident-response reference platform that combines telemetry, operational knowledge, RAG, and bounded AI investigation while keeping impactful remediation behind explicit human approval.
 
-## Core operating model
+## Why Aegis
+
+Incident response systems have two failure modes: they can be too manual to scale, or too autonomous to trust. Aegis separates investigation from execution so AI can collect and reason over evidence without silently turning model output into an operational side effect.
+
+## Operating model
 
 ```text
 Telemetry
@@ -24,14 +28,14 @@ Execution + audit trail
 
 ## Engineering capabilities
 
-- LangGraph investigation workflows.
-- Metrics, logs, traces, deployment, runbook, and incident-history tools.
+- LangGraph investigation workflows with bounded tool execution.
+- Metrics, logs, traces, deployment, runbook, and incident-history context.
 - Hybrid RAG with pgvector and metadata filters.
 - Prompt-injection defenses for untrusted operational content.
-- Validated incident state transitions and audit logging.
+- Explicit incident state transitions and audit logging.
 - Reproducible failure simulation.
-- JWT/RBAC, rate limiting, CodeQL, dependency review, CI/CD.
-- React/Vite operations dashboard.
+- JWT/RBAC, rate limiting, CodeQL, dependency review, and Scorecard.
+- React/Vite operations dashboard with explicit loading and error states.
 
 ## Architecture
 
@@ -53,14 +57,16 @@ graph TB
 |---|---|
 | Backend | Python 3.12, FastAPI, SQLAlchemy, Alembic |
 | AI | LangGraph, configurable LLM provider |
-| RAG | pgvector, sentence-transformers |
+| Retrieval | pgvector, sentence-transformers |
 | Data | PostgreSQL 16, Redis 7 |
-| Frontend | React, TypeScript, Vite, Tailwind CSS |
+| Frontend | React, Vite, Tailwind CSS |
 | Observability | OpenTelemetry, structured logging |
 | Testing | Pytest, Playwright, Locust |
 | Delivery | Docker, Kubernetes, Terraform, GitHub Actions |
 
 ## Quick start
+
+Prerequisites: Docker Compose.
 
 ```bash
 git clone https://github.com/AloneRider-pixel/aegis.git
@@ -70,8 +76,10 @@ docker compose up -d
 docker compose exec backend alembic upgrade head
 ```
 
-API: `http://localhost:8000`  
-Frontend: `http://localhost:3000`
+Local endpoints:
+
+- API: `http://localhost:8000`
+- Frontend: `http://localhost:3000`
 
 ## Verification
 
@@ -84,15 +92,17 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
-CI validates the backend/frontend quality surface together with CodeQL, dependency review, and Scorecard.
+CI also validates CodeQL, dependency review, Scorecard, and the repository's Docker build path.
 
-## Safety model
+## Security model
 
-Incident telemetry, logs, runbooks, and model output are untrusted inputs. Investigation may inspect them, but impactful remediation must remain separately authorized and auditable.
+Treat incident telemetry, logs, runbooks, retrieved text, user input, and model output as untrusted. Investigation is allowed to inspect these inputs; impactful remediation remains separately authorized, observable, and auditable.
+
+Do not place credentials in the repository or expose server-side secrets through the frontend.
 
 ## Evaluation integrity
 
-The current evaluation endpoint generates synthetic demo values for workflow/UI validation. Those values are not production model benchmarks. Any public quality result should include a fixed dataset, methodology, environment, sample count, and producing commit.
+The repository contains deterministic and synthetic fixtures for engineering validation. Those fixtures are not production model benchmarks. Any public quality, reliability, latency, or accuracy claim should identify its dataset/workload, methodology, environment, sample count, and producing commit.
 
 ## Documentation
 
@@ -101,6 +111,10 @@ The current evaluation endpoint generates synthetic demo values for workflow/UI 
 - [Verification](docs/verification.md)
 - [Evidence policy](docs/evidence-policy.md)
 - [Security](SECURITY.md)
+
+## Contribution standard
+
+Keep changes small and reviewable, preserve fail-closed validation, add regression coverage for behavioral fixes, and keep documentation aligned with the implemented control flow.
 
 ## Roadmap
 
