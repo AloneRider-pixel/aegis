@@ -9,7 +9,7 @@ function getHeaders() {
 
 function Spinner() {
   return (
-    <svg className="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <svg className="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
     </svg>
@@ -96,6 +96,7 @@ const IncidentCard = React.memo(function IncidentCard({ inc, isSelected, isInves
     <div onClick={() => onSelect(inc)}
       role="button"
       tabIndex={0}
+      aria-current={isSelected ? 'true' : undefined}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -108,17 +109,17 @@ const IncidentCard = React.memo(function IncidentCard({ inc, isSelected, isInves
         <StatusBadge status={inc.status} />
       </div>
       <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
-      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate" title={inc.probable_root_cause}>🤖 {inc.probable_root_cause}</p>}
       {inc.status === 'detected' && (
         <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
           className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-          {isInvestigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+          {isInvestigating ? <span className="flex items-center gap-1.5"><Spinner /> Investigating...</span> : '🤖 Investigate with AI'}
         </button>
       )}
       {inc.status === 'awaiting_approval' && (
         <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
           className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-          {isApproving ? '⏳ Approving...' : '✅ Approve Remediation'}
+          {isApproving ? <span className="flex items-center gap-1.5"><Spinner /> Approving...</span> : '✅ Approve Remediation'}
         </button>
       )}
     </div>
@@ -279,6 +280,7 @@ const IncidentItem = React.memo(function IncidentItem({ inc, isSelected, isInves
     <div onClick={() => onSelect(inc)}
       role="button"
       tabIndex={0}
+      aria-current={isSelected ? 'true' : undefined}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -291,17 +293,17 @@ const IncidentItem = React.memo(function IncidentItem({ inc, isSelected, isInves
         <StatusBadge status={inc.status} />
       </div>
       <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
-      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate">🤖 {inc.probable_root_cause}</p>}
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate" title={inc.probable_root_cause}>🤖 {inc.probable_root_cause}</p>}
       {inc.status === 'detected' && (
         <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
           className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-          {isInvestigating ? '🔄 Investigating...' : '🤖 Investigate with AI'}
+          {isInvestigating ? <span className="flex items-center gap-1.5"><Spinner /> Investigating...</span> : '🤖 Investigate with AI'}
         </button>
       )}
       {inc.status === 'awaiting_approval' && (
         <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
           className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-          {isApproving ? '⏳ Approving...' : '✅ Approve Remediation'}
+          {isApproving ? <span className="flex items-center gap-1.5"><Spinner /> Approving...</span> : '✅ Approve Remediation'}
         </button>
       )}
     </div>
