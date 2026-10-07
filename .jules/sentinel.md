@@ -22,3 +22,7 @@
 **Vulnerability:** Hardcoded `secret_key` and `jwt_secret_key` in `backend/app/config.py`.
 **Learning:** Default fallback values for security keys were used which could easily make it to production environments, especially since Pydantic BaseSettings falls back to the default when an environment variable isn't set.
 **Prevention:** Remove default values for sensitive configuration options in Pydantic Settings classes to force failure if they are not provided via environment variables.
+## 2025-02-28 - Hardcoded Database Password in Configuration
+**Vulnerability:** The application configuration (`backend/app/config.py`) contained a hardcoded default password (`"aegis_password"`) for the PostgreSQL database connection string.
+**Learning:** Hardcoded default credentials in configuration settings (like Pydantic `BaseSettings`) can lead to unintended credential reuse or accidental exposure if deployed to production without overriding the specific environment variables. Relying on default fallback values for sensitive data violates the secure-by-default principle.
+**Prevention:** Remove default values for all sensitive configuration options (secrets, passwords, API keys) in Pydantic settings classes to force the application to fail to start if required environment variables are not provided.
