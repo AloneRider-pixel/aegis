@@ -16,7 +16,7 @@ redis==8.1.0
 
 # AI
 langgraph>=1.2.12
-langchain-core>=0.2.35
+langchain-core>=1.6.6
 langchain-openai>=0.1.0
 openai>=1.10.0
 tiktoken>=0.14.0
