@@ -43,14 +43,20 @@ class TelemetryStore:
             })
 
     def get_metrics(self, service: str, time_range_minutes: int = 30) -> dict[str, list]:
-        cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
+        cutoff_iso = (datetime.utcnow() - timedelta(minutes=time_range_minutes)).isoformat()
         result = {}
         with self._lock:
             for key, entries in self._metrics.items():
                 if key.startswith(f"{service}:"):
                     metric_name = key.split(":", 1)[1]
-                    filtered = [e for e in entries if datetime.fromisoformat(e["timestamp"]) >= cutoff]
+                    # Performance Optimization: Iterate backwards and compare ISO strings instead of O(N) parsing dates
+                    filtered = []
+                    for e in reversed(entries):
+                        if e["timestamp"] < cutoff_iso:
+                            break
+                        filtered.append(e)
                     if filtered:
+                        filtered.reverse()
                         result[metric_name] = filtered
         return result
 
@@ -82,13 +88,15 @@ class TelemetryStore:
         time_range_minutes: int = 30,
         limit: int = 50,
     ) -> list[dict]:
-        cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
+        cutoff_iso = (datetime.utcnow() - timedelta(minutes=time_range_minutes)).isoformat()
         with self._lock:
             results = []
-            for log in self._logs:
-                ts = datetime.fromisoformat(log["timestamp"])
-                if ts < cutoff:
-                    continue
+            # Performance Optimization: Iterate backwards and compare ISO strings instead of O(N) parsing dates
+            for log in reversed(self._logs):
+                if len(results) >= limit:
+                    break
+                if log["timestamp"] < cutoff_iso:
+                    break
                 if service_name and log["service"] != service_name:
                     continue
                 if level and log["level"] != level:
@@ -96,7 +104,8 @@ class TelemetryStore:
                 if query and query.lower() not in log["message"].lower():
                     continue
                 results.append(log)
-            return results[-limit:]
+            results.reverse()
+            return results
 
     # ─── Traces ───
 
@@ -118,13 +127,13 @@ class TelemetryStore:
         slow_only: bool = True,
         time_range_minutes: int = 30,
     ) -> list[dict]:
-        cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
+        cutoff_iso = (datetime.utcnow() - timedelta(minutes=time_range_minutes)).isoformat()
         with self._lock:
             results = []
-            for trace in self._traces:
-                ts = datetime.fromisoformat(trace["timestamp"])
-                if ts < cutoff:
-                    continue
+            # Performance Optimization: Iterate backwards and compare ISO strings instead of O(N) parsing dates
+            for trace in reversed(self._traces):
+                if trace["timestamp"] < cutoff_iso:
+                    break
                 if trace_id and trace["trace_id"] != trace_id:
                     continue
                 if service_name and trace["service"] != service_name:
@@ -132,6 +141,7 @@ class TelemetryStore:
                 if slow_only and trace["duration_ms"] < 500:
                     continue
                 results.append(trace)
+            results.reverse()
             return results
 
     # ─── Deployments ───
@@ -149,16 +159,17 @@ class TelemetryStore:
             })
 
     def get_deployments(self, service_name: str | None = None, hours: int = 24) -> list[dict]:
-        cutoff = datetime.utcnow() - timedelta(hours=hours)
+        cutoff_iso = (datetime.utcnow() - timedelta(hours=hours)).isoformat()
         with self._lock:
             results = []
-            for dep in self._deployments:
-                ts = datetime.fromisoformat(dep["timestamp"])
-                if ts < cutoff:
-                    continue
+            # Performance Optimization: Iterate backwards and compare ISO strings instead of O(N) parsing dates
+            for dep in reversed(self._deployments):
+                if dep["timestamp"] < cutoff_iso:
+                    break
                 if service_name and dep["service"] != service_name:
                     continue
                 results.append(dep)
+            results.reverse()
             return results
 
     def get_deployment_diff(self, deployment_id: str) -> dict | None:
