@@ -1,3 +1,3 @@
-## 2024-10-04 - Unnecessary O(N) Re-renders on List Selection
-**Learning:** In React, passing dynamically generated values (like objects or functions that change on every render) or deriving boolean props (like `isSelected`) directly within an inline `map` loop function body will cause every item in the list to re-render when the parent's state changes.
-**Action:** Extract list items into separate components wrapped in `React.memo()`, pass primitive boolean flags (like `isSelected={selectedId === item.id}`), and stabilize callback references using `React.useCallback()` to prevent O(N) re-renders.
+## 2024-10-09 - Telemetry Log Parsing Overhead
+**Learning:** In append-only in-memory stores that chronologically insert telemetry with ISO-8601 timestamps, parsing `datetime` strings and sequentially iterating over the entire array for recent items causes an O(N) performance bottleneck.
+**Action:** When filtering for recent logs in chronologically sorted append-only stores, iterate backward using `reversed()` and compare raw ISO-8601 timestamp strings directly against an ISO cutoff string. Break early on the first out-of-bounds match.
