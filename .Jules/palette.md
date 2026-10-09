@@ -1,7 +1,3 @@
-## 2024-05-24 - Shared loading state causes confusing UX
-**Learning:** Using a single boolean state (`investigating`) for loading actions in a mapped list causes all items in the list to visually reflect the loading state, confusing users about which item is actually being processed.
-**Action:** Always use specific IDs (`investigatingId`, `approvingId`) for state management in lists to ensure loading feedback is localized exclusively to the interacted item.
-
-## 2024-05-25 - Redundant Screen Reader Output on SVGs
-**Learning:** Decorative SVG elements (like `Spinner` components) inside interactive buttons are often announced confusingly by screen readers if they lack appropriate ARIA attributes, creating a poor accessible experience.
-**Action:** Always add `aria-hidden="true"` to generic/decorative SVG components (like spinners or icons) when the surrounding element (like a button) already provides semantic meaning or text content.
+## 2024-10-09 - Empty State Navigation Friction
+**Learning:** Empty states with instructions (e.g. "Trigger a scenario from the Simulator to begin") but no actionable Call-To-Action (CTA) button create friction, forcing users to manually hunt for navigation.
+**Action:** Always pair instructive text in empty states with explicit, clickable CTAs that guide users directly to the next step.
