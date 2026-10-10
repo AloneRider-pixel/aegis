@@ -83,12 +83,13 @@ class TelemetryStore:
         limit: int = 50,
     ) -> list[dict]:
         cutoff = datetime.utcnow() - timedelta(minutes=time_range_minutes)
+        cutoff_iso = cutoff.isoformat()
         with self._lock:
             results = []
-            for log in self._logs:
-                ts = datetime.fromisoformat(log["timestamp"])
-                if ts < cutoff:
-                    continue
+            # Performance optimization: iterate backwards and break early using string comparison
+            for log in reversed(self._logs):
+                if log["timestamp"] < cutoff_iso:
+                    break
                 if service_name and log["service"] != service_name:
                     continue
                 if level and log["level"] != level:
@@ -96,7 +97,9 @@ class TelemetryStore:
                 if query and query.lower() not in log["message"].lower():
                     continue
                 results.append(log)
-            return results[-limit:]
+                if len(results) >= limit:
+                    break
+            return results[::-1]
 
     # ─── Traces ───
 
