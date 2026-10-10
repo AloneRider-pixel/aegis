@@ -365,6 +365,21 @@ function IncidentsPage() {
 
   const handleSelect = React.useCallback((inc) => {
     setSelected(inc)
+    setInvestigationResult(null)
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Avoid intercepting Escape if user is typing in an input/textarea
+      if (e.key === 'Escape') {
+        const activeTag = document.activeElement?.tagName?.toLowerCase()
+        if (activeTag === 'input' || activeTag === 'textarea') return
+        setSelected(null)
+        setInvestigationResult(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   return (
@@ -421,7 +436,18 @@ function IncidentsPage() {
           </div>
         ) : investigationResult && !investigationResult.error ? (
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-lg font-bold text-white mb-4">🤖 AI Investigation Report</h3>
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-lg font-bold text-white">🤖 AI Investigation Report</h3>
+              <button
+                onClick={() => setInvestigationResult(null)}
+                aria-label="Close report"
+                className="text-gray-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 rounded p-1"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <div className="space-y-4">
               <div>
                 <p className="text-gray-400 text-sm">Root Cause</p>
@@ -459,8 +485,19 @@ function IncidentsPage() {
         ) : selected ? (
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
             <div className="flex justify-between items-start mb-4">
-              <SeverityBadge severity={selected.severity} />
-              <StatusBadge status={selected.status} />
+              <div className="flex gap-2">
+                <SeverityBadge severity={selected.severity} />
+                <StatusBadge status={selected.status} />
+              </div>
+              <button
+                onClick={() => setSelected(null)}
+                aria-label="Close details"
+                className="text-gray-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 rounded p-1"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             <h3 className="text-lg font-bold text-white">{selected.title}</h3>
             {selected.symptoms?.length > 0 && (
