@@ -1,3 +1,6 @@
 ## 2024-10-04 - Unnecessary O(N) Re-renders on List Selection
 **Learning:** In React, passing dynamically generated values (like objects or functions that change on every render) or deriving boolean props (like `isSelected`) directly within an inline `map` loop function body will cause every item in the list to re-render when the parent's state changes.
 **Action:** Extract list items into separate components wrapped in `React.memo()`, pass primitive boolean flags (like `isSelected={selectedId === item.id}`), and stabilize callback references using `React.useCallback()` to prevent O(N) re-renders.
+## 2025-02-28 - O(N) DateTime Parsing in Telemetry Append-Only Logs
+**Learning:** Parsing `datetime.fromisoformat()` inside an `O(N)` loop filtering over chronological, append-only lists (like telemetry logs/metrics) creates significant constant-time overhead. Because ISO-8601 strings match lexicographical ordering, and these arrays are ordered by time, we can avoid full table scans and slow datetime parsing.
+**Action:** When filtering chronological, append-only lists by a time cutoff, iterate backward (`reversed()`) and break early using direct lexicographical string comparison (`if log["timestamp"] < cutoff_iso: break`), changing an `O(N)` operation to `O(K)` and avoiding expensive datetime parsing loops.
