@@ -5,3 +5,6 @@
 ## 2024-05-25 - Redundant Screen Reader Output on SVGs
 **Learning:** Decorative SVG elements (like `Spinner` components) inside interactive buttons are often announced confusingly by screen readers if they lack appropriate ARIA attributes, creating a poor accessible experience.
 **Action:** Always add `aria-hidden="true"` to generic/decorative SVG components (like spinners or icons) when the surrounding element (like a button) already provides semantic meaning or text content.
+## 2024-05-26 - Dead-end empty states
+**Learning:** Empty states that simply declare "no data" without offering a next step create dead ends for users, especially in interactive dashboards where they need to trigger data to test the system.
+**Action:** Always provide explicit, actionable Call-to-Action (CTA) buttons in empty states that guide the user to the next logical step (e.g., "Go to Simulator").
