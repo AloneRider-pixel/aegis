@@ -1,3 +1,6 @@
 ## 2024-10-04 - Unnecessary O(N) Re-renders on List Selection
 **Learning:** In React, passing dynamically generated values (like objects or functions that change on every render) or deriving boolean props (like `isSelected`) directly within an inline `map` loop function body will cause every item in the list to re-render when the parent's state changes.
 **Action:** Extract list items into separate components wrapped in `React.memo()`, pass primitive boolean flags (like `isSelected={selectedId === item.id}`), and stabilize callback references using `React.useCallback()` to prevent O(N) re-renders.
+## 2024-10-27 - Fast Appending Arrays and Searching Chronologically
+**Learning:** When filtering append-only, chronologically sorted arrays (like telemetry logs, traces, or deployments in memory), using native O(N) parsing methods (like `datetime.fromisoformat`) for each element when looping over the array is highly inefficient.
+**Action:** Instead, iterate backwards through the array with `reversed()` and use direct lexicographical string comparisons on ISO-8601 timestamps (e.g., `iso_str1 < iso_str2`) against a pre-computed cutoff ISO string to quickly break early when hitting the cutoff threshold, effectively removing the O(N) traversal overhead.
