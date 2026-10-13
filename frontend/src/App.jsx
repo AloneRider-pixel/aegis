@@ -365,6 +365,8 @@ function IncidentsPage() {
 
   const handleSelect = React.useCallback((inc) => {
     setSelected(inc)
+    setInvestigationResult(null)
+    setApproveError(null)
   }, [])
 
   return (
