@@ -1,3 +1,3 @@
-## 2024-10-04 - Unnecessary O(N) Re-renders on List Selection
-**Learning:** In React, passing dynamically generated values (like objects or functions that change on every render) or deriving boolean props (like `isSelected`) directly within an inline `map` loop function body will cause every item in the list to re-render when the parent's state changes.
-**Action:** Extract list items into separate components wrapped in `React.memo()`, pass primitive boolean flags (like `isSelected={selectedId === item.id}`), and stabilize callback references using `React.useCallback()` to prevent O(N) re-renders.
+## 2024-05-17 - O(N) Array Parsing Bottlenecks in Memory Stores
+**Learning:** In long-running processes (like the simulator's `TelemetryStore`), append-only arrays can grow significantly over time. Standard functional filtering (`[e for e in entries if datetime.fromisoformat(e["timestamp"]) >= cutoff]`) performs a full O(N) traversal and incurs heavy string parsing overhead, creating a hidden performance bottleneck.
+**Action:** When filtering append-only, chronologically sorted arrays by time, iterate backwards (`reversed()`) and compare raw ISO-8601 strings lexicographically (`iso_str1 < iso_str2`). Break early once the cutoff is reached to reduce complexity to O(K) where K is the number of recent elements.
