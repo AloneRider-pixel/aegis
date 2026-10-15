@@ -1,3 +1,3 @@
-## 2024-05-17 - O(N) Array Parsing Bottlenecks in Memory Stores
-**Learning:** In long-running processes (like the simulator's `TelemetryStore`), append-only arrays can grow significantly over time. Standard functional filtering (`[e for e in entries if datetime.fromisoformat(e["timestamp"]) >= cutoff]`) performs a full O(N) traversal and incurs heavy string parsing overhead, creating a hidden performance bottleneck.
-**Action:** When filtering append-only, chronologically sorted arrays by time, iterate backwards (`reversed()`) and compare raw ISO-8601 strings lexicographically (`iso_str1 < iso_str2`). Break early once the cutoff is reached to reduce complexity to O(K) where K is the number of recent elements.
+## 2026-10-14 - Timestamp Ordering in Telemetry Stores
+**Learning:** Telemetry arrays are not uniformly ordered by timestamp: scenario metrics may append older anomaly samples after newer baseline samples, and generated logs can receive randomized timestamps. A reverse scan that stops at the first stale entry can omit valid recent telemetry.
+**Action:** Use ISO timestamp comparisons to avoid repeated datetime parsing. Only use early termination when chronological append order is a guaranteed invariant; otherwise continue filtering every entry or introduce an explicitly ordered index. Keep out-of-order timestamp regressions in the test suite.
