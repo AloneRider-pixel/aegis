@@ -369,6 +369,22 @@ function IncidentsPage() {
     setApproveError(null)
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const activeTag = document.activeElement?.tagName.toLowerCase()
+      if (activeTag === 'input' || activeTag === 'textarea') return
+
+      if (e.key === 'Escape') {
+        setSelected(null)
+        setInvestigationResult(null)
+        setApproveError(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   return (
     <div className="flex gap-6">
       <div className="w-1/2">
