@@ -22,7 +22,7 @@ openai>=1.10.0
 tiktoken>=0.14.0
 
 # Auth
-pyjwt==2.8.0
+pyjwt==2.15.1
 bcrypt==5.0.0
 python-multipart==0.0.32
 
