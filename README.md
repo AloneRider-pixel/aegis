@@ -61,7 +61,7 @@ graph TB
 | Data | PostgreSQL 16, Redis 7 |
 | Frontend | React, Vite, Tailwind CSS |
 | Observability | OpenTelemetry, structured logging |
-| Testing | Pytest, Playwright, Locust |
+| Testing | Pytest |
 | Delivery | Docker, Kubernetes, Terraform, GitHub Actions |
 
 ## Quick start

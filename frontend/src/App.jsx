@@ -366,20 +366,7 @@ function IncidentsPage() {
   const handleSelect = React.useCallback((inc) => {
     setSelected(inc)
     setInvestigationResult(null)
-  }, [])
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Avoid intercepting Escape if user is typing in an input/textarea
-      if (e.key === 'Escape') {
-        const activeTag = document.activeElement?.tagName?.toLowerCase()
-        if (activeTag === 'input' || activeTag === 'textarea') return
-        setSelected(null)
-        setInvestigationResult(null)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    setApproveError(null)
   }, [])
 
   return (
