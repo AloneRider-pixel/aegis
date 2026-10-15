@@ -1,4 +1,5 @@
 """Tests for the failure simulator."""
+from datetime import datetime, timedelta
 from app.simulator.scenarios import list_scenarios, get_scenario, trigger_scenario
 from app.simulator.telemetry import telemetry_store
 
@@ -62,3 +63,24 @@ class TestTelemetryStore:
         telemetry_store.reset()
         metrics = telemetry_store.get_metrics("svc")
         assert len(metrics) == 0
+    
+    def test_metrics_keep_recent_samples_when_stale_sample_was_appended_last(self):
+        telemetry_store.reset()
+        now = datetime.utcnow()
+        telemetry_store.add_metric("svc", "cpu", 55.0, timestamp=now - timedelta(minutes=1))
+        telemetry_store.add_metric("svc", "cpu", 10.0, timestamp=now - timedelta(minutes=10))
+
+        metrics = telemetry_store.get_metrics("svc", time_range_minutes=5)
+
+        assert [sample["value"] for sample in metrics["cpu"]] == [55.0]
+
+    def test_logs_keep_recent_entries_when_stale_entry_was_appended_last(self):
+        telemetry_store.reset()
+        now = datetime.utcnow()
+        telemetry_store.add_log("svc", "INFO", "recent entry", timestamp=now - timedelta(minutes=1))
+        telemetry_store.add_log("svc", "INFO", "stale entry", timestamp=now - timedelta(minutes=10))
+
+        logs = telemetry_store.get_logs(service_name="svc", time_range_minutes=5)
+
+        assert [entry["message"] for entry in logs] == ["recent entry"]
+
