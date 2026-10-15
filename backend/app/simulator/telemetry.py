@@ -43,7 +43,7 @@ class TelemetryStore:
             })
 
     def get_metrics(self, service: str, time_range_minutes: int = 30) -> dict[str, list]:
-        # ⚡ Bolt Optimization: Use ISO string for O(1) lexicographical comparison and iterate backward to break early
+        # ⚡ Bolt Optimization: Use ISO timestamp comparisons; scenario anomaly samples can be out of timestamp order
         cutoff_iso = (datetime.utcnow() - timedelta(minutes=time_range_minutes)).isoformat()
         result = {}
         with self._lock:
@@ -53,7 +53,7 @@ class TelemetryStore:
                     filtered = []
                     for e in reversed(entries):
                         if e["timestamp"] < cutoff_iso:
-                            break
+                            continue
                         filtered.append(e)
                     if filtered:
                         result[metric_name] = list(reversed(filtered))
@@ -93,7 +93,7 @@ class TelemetryStore:
             results = []
             for log in reversed(self._logs):
                 if log["timestamp"] < cutoff_iso:
-                    break
+                    continue
                 if service_name and log["service"] != service_name:
                     continue
                 if level and log["level"] != level:
