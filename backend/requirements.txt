@@ -1,7 +1,7 @@
 # Core
 fastapi==0.142.2
 uvicorn[standard]==0.27.0
-pydantic>=2.13.5
+pydantic>=2.14.1
 pydantic-settings==2.15.0
 
 # Database
