@@ -1,3 +1,3 @@
-## 2024-10-04 - Unnecessary O(N) Re-renders on List Selection
-**Learning:** In React, passing dynamically generated values (like objects or functions that change on every render) or deriving boolean props (like `isSelected`) directly within an inline `map` loop function body will cause every item in the list to re-render when the parent's state changes.
-**Action:** Extract list items into separate components wrapped in `React.memo()`, pass primitive boolean flags (like `isSelected={selectedId === item.id}`), and stabilize callback references using `React.useCallback()` to prevent O(N) re-renders.
+## 2026-10-14 - Timestamp Ordering in Telemetry Stores
+**Learning:** Telemetry arrays are not uniformly ordered by timestamp: scenario metrics may append older anomaly samples after newer baseline samples, and generated logs can receive randomized timestamps. A reverse scan that stops at the first stale entry can omit valid recent telemetry.
+**Action:** Use ISO timestamp comparisons to avoid repeated datetime parsing. Only use early termination when chronological append order is a guaranteed invariant; otherwise continue filtering every entry or introduce an explicitly ordered index. Keep out-of-order timestamp regressions in the test suite.
