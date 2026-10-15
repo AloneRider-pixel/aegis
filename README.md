@@ -108,8 +108,6 @@ The repository contains deterministic and synthetic fixtures for engineering val
 
 - [Architecture](docs/architecture.md)
 - [System architecture](docs/architecture/system.md)
-- [Verification](docs/verification.md)
-- [Evidence policy](docs/evidence-policy.md)
 - [Security](SECURITY.md)
 
 ## Contribution standard
