@@ -369,6 +369,17 @@ function IncidentsPage() {
     setApproveError(null)
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+        setSelected(null)
+        setInvestigationResult(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   return (
     <div className="flex gap-6">
       <div className="w-1/2">
@@ -427,7 +438,8 @@ function IncidentsPage() {
               <h3 className="text-lg font-bold text-white">🤖 AI Investigation Report</h3>
               <button
                 onClick={() => setInvestigationResult(null)}
-                aria-label="Close report"
+                title="Close report (Esc)"
+                aria-label="Close report (Esc)"
                 className="text-gray-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 rounded p-1"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -478,7 +490,8 @@ function IncidentsPage() {
               </div>
               <button
                 onClick={() => setSelected(null)}
-                aria-label="Close details"
+                title="Close details (Esc)"
+                aria-label="Close details (Esc)"
                 className="text-gray-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 rounded p-1"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
