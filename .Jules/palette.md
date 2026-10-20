@@ -10,3 +10,7 @@
 **Learning:** In master-detail views (like the incidents dashboard), when a user selects a new item from the master list, any temporary or expanded states associated with the previously selected item (e.g., an AI Investigation Report) MUST be explicitly cleared. Failing to do so creates a UX trap where the new item's details are permanently obscured by the old item's report.
 **Action:** Always verify that `onSelect` handlers reset related sibling states, provide accessible "Close" buttons on all overlay/detail panels, and implement global `Escape` key listeners to allow users an intuitive "way out" to the empty state.
 ## 2026-10-16 - Global Keyboard Shortcuts\n**Learning:** Implementing global `Escape` key listeners in a React SPA provides a huge accessibility and UX boost for dismissing modals or detail panes, but requires careful event management to avoid intercepting inputs or breaking when state changes.\n**Action:** Always check `document.activeElement?.tagName` before firing the dismiss action to ensure users can type in inputs, and keep the `useEffect` dependency array empty by using stable state setter functions (like `setSelected(null)`) to avoid unnecessary re-renders or stale closures.
+
+## 2026-10-20 - Actionable Empty States
+**Learning:** Empty states without explicit Call-to-Action buttons create dead-end UX, confusing users on how to proceed.
+**Action:** Always provide explicit, actionable Call-to-Action (CTA) buttons in empty states to guide users to the next step.
