@@ -26,3 +26,7 @@
 **Vulnerability:** Hardcoded `postgres_password` in `backend/app/config.py`.
 **Learning:** Default fallback values for security keys were used which could easily make it to production environments, especially since Pydantic BaseSettings falls back to the default when an environment variable isn't set.
 **Prevention:** Remove default values for sensitive configuration options in Pydantic Settings and Docker Compose so missing database credentials fail closed.
+## 2025-02-28 - DoS via CPU-bound blocking operations in Async Router
+**Vulnerability:** The login endpoint (`/api/auth/login`) used the synchronous `bcrypt.checkpw` operation directly inside an `async def` route handler without offloading it.
+**Learning:** In FastAPI (and `asyncio` generally), CPU-bound synchronous operations block the single event loop. This leads to starvation, meaning concurrent requests are blocked while the password hash is being verified, presenting a trivial Denial of Service (DoS) attack vector.
+**Prevention:** Always wrap CPU-intensive cryptographic operations (like password hashing/verification using `bcrypt`, `argon2`, etc.) in `fastapi.concurrency.run_in_threadpool` (or `asyncio.to_thread`) when called inside an `async def` endpoint.
