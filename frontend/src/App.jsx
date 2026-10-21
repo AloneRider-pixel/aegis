@@ -127,7 +127,7 @@ const IncidentCard = React.memo(function IncidentCard({ inc, isSelected, isInves
 })
 
 // ─── Dashboard Page ───
-function DashboardPage({ user }) {
+function DashboardPage({ user, onNavigate }) {
   const [incidents, setIncidents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -191,7 +191,7 @@ function DashboardPage({ user }) {
           <tbody>
             {loading ? <tr><td colSpan="5" className="px-4 py-8 text-center text-gray-500">Loading...</td></tr> :
              error ? <tr><td colSpan="5" className="px-4 py-8"><div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-red-800 rounded-xl bg-red-900/20 text-center mx-4 my-2" role="alert"><p className="text-red-400 font-medium">Failed to load dashboard data</p><p className="text-red-300 text-sm mt-1">{error}</p></div></td></tr> :
-             incidents.length === 0 ? <tr><td colSpan="5" className="px-4 py-12 text-center text-gray-500"><div className="flex flex-col items-center justify-center space-y-3"><span className="text-3xl" aria-hidden="true">🎉</span><div><p className="text-gray-300 font-medium">All clear! No incidents detected.</p><p className="text-sm mt-1">Trigger a scenario from the Simulator tab to get started.</p></div></div></td></tr> :
+             incidents.length === 0 ? <tr><td colSpan="5" className="px-4 py-12 text-center text-gray-500"><div className="flex flex-col items-center justify-center space-y-3"><span className="text-3xl" aria-hidden="true">🎉</span><div><p className="text-gray-300 font-medium">All clear! No incidents detected.</p><p className="text-sm mt-1 mb-3">Trigger a scenario from the Simulator tab to get started.</p><button onClick={() => onNavigate('simulator')} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">Go to Simulator</button></div></div></td></tr> :
              incidents.map(inc => (
               <tr key={inc.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
                 <td className="px-4 py-3"><SeverityBadge severity={inc.severity} /></td>
@@ -311,7 +311,7 @@ const IncidentItem = React.memo(function IncidentItem({ inc, isSelected, isInves
 })
 
 // ─── Incidents Page ───
-function IncidentsPage() {
+function IncidentsPage({ onNavigate }) {
   const [incidents, setIncidents] = useState([])
   const [selected, setSelected] = useState(null)
   const [investigatingId, setInvestigatingId] = useState(null)
@@ -421,7 +421,8 @@ function IncidentsPage() {
             <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-800 rounded-xl bg-gray-900/50 text-center">
               <span className="text-3xl mb-3" aria-hidden="true">🛡️</span>
               <p className="text-gray-300 font-medium">All clear! No incidents currently detected.</p>
-              <p className="text-gray-500 text-sm mt-1">Trigger a scenario from the Simulator to begin.</p>
+              <p className="text-gray-500 text-sm mt-1 mb-4">Trigger a scenario from the Simulator to begin.</p>
+              <button onClick={() => onNavigate('simulator')} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">Go to Simulator</button>
             </div>
           )}
         </div>
@@ -560,8 +561,8 @@ export default function App() {
 
       {/* Content */}
       <main className="p-6 max-w-7xl mx-auto">
-        {page === 'dashboard' && <DashboardPage user={user} />}
-        {page === 'incidents' && <IncidentsPage />}
+        {page === 'dashboard' && <DashboardPage user={user} onNavigate={setPage} />}
+        {page === 'incidents' && <IncidentsPage onNavigate={setPage} />}
         {page === 'simulator' && <SimulatorPage />}
       </main>
     </div>
