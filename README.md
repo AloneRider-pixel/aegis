@@ -35,7 +35,7 @@ Execution + audit trail
 
 - LangGraph investigation workflows with bounded tool execution.
 - Metrics, logs, traces, deployment, runbook, and incident-history context.
-- Hybrid RAG with pgvector and metadata filters.
+- RAG with pgvector semantic search and metadata filtering.
 - Prompt-injection defenses for untrusted operational content.
 - Explicit incident state transitions and audit logging.
 - Reproducible failure simulation.
