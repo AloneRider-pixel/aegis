@@ -90,6 +90,27 @@ const StatusBadge = React.memo(function StatusBadge({ status }) {
 })
 
 
+// OPTIMIZATION: Extracted ScenarioCard to React.memo to prevent O(N) re-renders when parent state updates.
+const ScenarioCard = React.memo(function ScenarioCard({ s, isTriggering, onTrigger }) {
+  return (
+    <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-white font-medium">{s.name}</h3>
+        <SeverityBadge severity={s.severity} />
+      </div>
+      <p className="text-gray-400 text-sm mb-3">{s.description}</p>
+      <div className="flex gap-2">
+        <span className="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs">{s.category}</span>
+        <span className="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs">{s.service}</span>
+      </div>
+      <button onClick={() => onTrigger(s.id)} disabled={isTriggering}
+        className="mt-3 w-full py-2 bg-red-600/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
+        {isTriggering ? <span className="flex items-center justify-center gap-2"><Spinner /> Triggering...</span> : '⚡ Trigger Scenario'}
+      </button>
+    </div>
+  )
+})
+
 // OPTIMIZATION: Extracted IncidentCard to React.memo to prevent O(N) re-renders when parent state updates.
 const IncidentCard = React.memo(function IncidentCard({ inc, isSelected, isInvestigating, isApproving, onSelect, onInvestigate, onApprove }) {
   return (
@@ -218,7 +239,7 @@ function SimulatorPage({ setPage }) {
     fetch(`${API}/simulator/scenarios`, { headers: getHeaders() }).then(r => r.json()).then(d => setScenarios(d.scenarios || []))
   }, [])
 
-  const trigger = async (id) => {
+  const trigger = React.useCallback(async (id) => {
     setTriggering(id)
     setResult(null)
     try {
@@ -231,7 +252,7 @@ function SimulatorPage({ setPage }) {
       setResult(data)
     } catch (err) { setResult({ error: err.message }) }
     setTriggering(null)
-  }
+  }, [])
 
   return (
     <div>
@@ -239,21 +260,12 @@ function SimulatorPage({ setPage }) {
       <p className="text-gray-400 text-sm mb-6">Trigger realistic failure scenarios to test the AI investigation agent.</p>
       <div className="grid grid-cols-2 gap-4">
         {scenarios.map(s => (
-          <div key={s.id} className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-white font-medium">{s.name}</h3>
-              <SeverityBadge severity={s.severity} />
-            </div>
-            <p className="text-gray-400 text-sm mb-3">{s.description}</p>
-            <div className="flex gap-2">
-              <span className="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs">{s.category}</span>
-              <span className="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs">{s.service}</span>
-            </div>
-            <button onClick={() => trigger(s.id)} disabled={triggering === s.id}
-              className="mt-3 w-full py-2 bg-red-600/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
-              {triggering === s.id ? <span className="flex items-center justify-center gap-2"><Spinner /> Triggering...</span> : '⚡ Trigger Scenario'}
-            </button>
-          </div>
+          <ScenarioCard
+            key={s.id}
+            s={s}
+            isTriggering={triggering === s.id}
+            onTrigger={trigger}
+          />
         ))}
       </div>
       {result && result.error && (
