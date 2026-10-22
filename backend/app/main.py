@@ -10,6 +10,7 @@ import time
 from collections import defaultdict
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.concurrency import run_in_threadpool
 from redis.asyncio import Redis
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -150,7 +151,7 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
 
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
-    if not user or not verify_password(req.password, user.hashed_password):
+    if not user or not await run_in_threadpool(verify_password, req.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     token = create_token({"sub": str(user.id), "email": user.email, "role": user.role.value})
     return TokenResponse(
