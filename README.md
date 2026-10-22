@@ -4,7 +4,12 @@
 [![CodeQL](https://github.com/AloneRider-pixel/aegis/actions/workflows/codeql.yml/badge.svg)](https://github.com/AloneRider-pixel/aegis/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+**Code:** [github.com/AloneRider-pixel/aegis](https://github.com/AloneRider-pixel/aegis) (reference platform; no public deployment)
+
 A production-oriented incident-response reference platform that combines telemetry, operational knowledge, RAG, and bounded AI investigation while keeping impactful remediation behind explicit human approval.
+> **Demo data:** all evaluation fixtures and demo scenarios in this repository are synthetic and deterministic. They validate engineering behavior - state transitions, approval gating, retrieval wiring - and are not production model benchmarks.
+
+
 
 ## Why Aegis
 
