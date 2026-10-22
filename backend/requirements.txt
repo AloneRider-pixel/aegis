@@ -15,7 +15,7 @@ psycopg2-binary==2.9.13
 redis==8.1.0
 
 # AI
-langgraph>=1.2.12
+langgraph>=1.2.16
 langchain-core>=1.6.12
 langchain-openai>=1.7.2
 openai>=3.35.1
