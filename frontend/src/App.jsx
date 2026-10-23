@@ -50,12 +50,12 @@ function Login({ onLogin }) {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 bg-gray-900 p-6 rounded-xl border border-gray-800">
   <div>
-    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
-    <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@aegis.io" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={isLoggingIn} />
+    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email <span aria-hidden="true" className="text-red-500">*</span></label>
+    <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@aegis.io" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" required disabled={isLoggingIn} />
   </div>
   <div>
-    <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password</label>
-    <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled={isLoggingIn} />
+    <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password <span aria-hidden="true" className="text-red-500">*</span></label>
+    <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" required disabled={isLoggingIn} />
   </div>
   {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
   <button type="submit" disabled={isLoggingIn} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -105,7 +105,7 @@ const ScenarioCard = React.memo(function ScenarioCard({ s, isTriggering, onTrigg
       </div>
       <button onClick={() => onTrigger(s.id)} disabled={isTriggering}
         className="mt-3 w-full py-2 bg-red-600/20 text-red-400 rounded-lg text-sm font-medium hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
-        {isTriggering ? <span className="flex items-center justify-center gap-2"><Spinner /> Triggering...</span> : '⚡ Trigger Scenario'}
+        {isTriggering ? <span className="flex items-center justify-center gap-2"><Spinner /> Triggering...</span> : <><span aria-hidden="true">⚡</span> Trigger Scenario</>}
       </button>
     </div>
   )
@@ -130,17 +130,17 @@ const IncidentCard = React.memo(function IncidentCard({ inc, isSelected, isInves
         <StatusBadge status={inc.status} />
       </div>
       <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
-      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate" title={inc.probable_root_cause}>🤖 {inc.probable_root_cause}</p>}
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate" title={inc.probable_root_cause}><span aria-hidden="true">🤖</span> {inc.probable_root_cause}</p>}
       {inc.status === 'detected' && (
         <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
           className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-          {isInvestigating ? <span className="flex items-center gap-1.5"><Spinner /> Investigating...</span> : '🤖 Investigate with AI'}
+          {isInvestigating ? <span className="flex items-center gap-1.5"><Spinner /> Investigating...</span> : <><span aria-hidden="true">🤖</span> Investigate with AI</>}
         </button>
       )}
       {inc.status === 'awaiting_approval' && (
         <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
           className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-          {isApproving ? <span className="flex items-center gap-1.5"><Spinner /> Approving...</span> : '✅ Approve Remediation'}
+          {isApproving ? <span className="flex items-center gap-1.5"><Spinner /> Approving...</span> : <><span aria-hidden="true">✅</span> Approve Remediation</>}
         </button>
       )}
     </div>
@@ -270,13 +270,13 @@ function SimulatorPage({ setPage }) {
       </div>
       {result && result.error && (
         <div role="alert" className="mt-6 bg-red-900/20 rounded-xl p-4 border border-red-800">
-          <h3 className="text-red-400 font-medium mb-2">❌ Scenario Trigger Failed</h3>
+          <h3 className="text-red-400 font-medium mb-2"><span aria-hidden="true">❌</span> Scenario Trigger Failed</h3>
           <p className="text-red-300 text-sm">{result.error}</p>
         </div>
       )}
       {result && !result.error && (
         <div className="mt-6 bg-gray-900 rounded-xl p-4 border border-green-800">
-          <h3 className="text-green-400 font-medium mb-2">✅ Scenario Triggered</h3>
+          <h3 className="text-green-400 font-medium mb-2"><span aria-hidden="true">✅</span> Scenario Triggered</h3>
           <p className="text-gray-300 text-sm">Incident created: <strong>{result.incident_id}</strong></p>
           <p className="text-gray-400 text-sm mt-1 mb-3">Telemetry generated. Go to Incidents to investigate with AI.</p>
           <button onClick={() => setPage('incidents')} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">Go to Incidents</button>
@@ -306,17 +306,17 @@ const IncidentItem = React.memo(function IncidentItem({ inc, isSelected, isInves
         <StatusBadge status={inc.status} />
       </div>
       <p className="text-white text-sm mt-2 font-medium">{inc.title}</p>
-      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate" title={inc.probable_root_cause}>🤖 {inc.probable_root_cause}</p>}
+      {inc.probable_root_cause && <p className="text-gray-400 text-xs mt-1 truncate" title={inc.probable_root_cause}><span aria-hidden="true">🤖</span> {inc.probable_root_cause}</p>}
       {inc.status === 'detected' && (
         <button onClick={(e) => { e.stopPropagation(); onInvestigate(inc.id) }} disabled={isInvestigating}
           className="mt-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-xs hover:bg-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-          {isInvestigating ? <span className="flex items-center gap-1.5"><Spinner /> Investigating...</span> : '🤖 Investigate with AI'}
+          {isInvestigating ? <span className="flex items-center gap-1.5"><Spinner /> Investigating...</span> : <><span aria-hidden="true">🤖</span> Investigate with AI</>}
         </button>
       )}
       {inc.status === 'awaiting_approval' && (
         <button onClick={(e) => { e.stopPropagation(); onApprove(inc.id) }} disabled={isApproving}
           className="mt-2 px-3 py-1 bg-green-600/20 text-green-400 rounded text-xs hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
-          {isApproving ? <span className="flex items-center gap-1.5"><Spinner /> Approving...</span> : '✅ Approve Remediation'}
+          {isApproving ? <span className="flex items-center gap-1.5"><Spinner /> Approving...</span> : <><span aria-hidden="true">✅</span> Approve Remediation</>}
         </button>
       )}
     </div>
@@ -399,7 +399,7 @@ function IncidentsPage({ setPage }) {
         <h2 className="text-xl font-bold text-white mb-4">Incidents</h2>
         {approveError && (
           <div role="alert" className="mb-4 bg-red-900/20 rounded-xl p-4 border border-red-800">
-            <h3 className="text-red-400 font-medium mb-1">❌ Approval Failed</h3>
+            <h3 className="text-red-400 font-medium mb-1"><span aria-hidden="true">❌</span> Approval Failed</h3>
             <p className="text-red-300 text-sm">{approveError}</p>
           </div>
         )}
@@ -443,13 +443,13 @@ function IncidentsPage({ setPage }) {
       <div className="w-1/2">
         {investigationResult && investigationResult.error ? (
           <div className="bg-gray-900 rounded-xl p-6 border border-red-800" role="alert">
-            <h3 className="text-red-400 font-bold mb-2">❌ Investigation Failed</h3>
+            <h3 className="text-red-400 font-bold mb-2"><span aria-hidden="true">❌</span> Investigation Failed</h3>
             <p className="text-gray-300 text-sm">{investigationResult.error}</p>
           </div>
         ) : investigationResult && !investigationResult.error ? (
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-bold text-white">🤖 AI Investigation Report</h3>
+              <h3 className="text-lg font-bold text-white"><span aria-hidden="true">🤖</span> AI Investigation Report</h3>
               <button
                 onClick={() => setInvestigationResult(null)}
                 title="Close report (Esc)"
@@ -561,10 +561,11 @@ export default function App() {
           </div>
         </div>
         <nav aria-label="Main navigation" className="flex gap-1 bg-gray-800 rounded-lg p-1">
-          {[['dashboard', '📊 Dashboard'], ['incidents', '🚨 Incidents'], ['simulator', '⚡ Simulator']].map(([id, label]) => (
+          {[['dashboard', '📊', 'Dashboard'], ['incidents', '🚨', 'Incidents'], ['simulator', '⚡', 'Simulator']].map(([id, emoji, label]) => (
             <button key={id} onClick={() => setPage(id)}
               aria-current={page === id ? 'page' : undefined}
               className={`px-4 py-1.5 rounded-md text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${page === id ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}>
+              <span aria-hidden="true" className="mr-2">{emoji}</span>
               {label}
             </button>
           ))}
