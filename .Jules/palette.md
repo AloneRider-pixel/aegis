@@ -13,3 +13,7 @@
 ## 2024-05-26 - Dead-end empty states
 **Learning:** Empty states without explicit Call-to-Action (CTA) buttons create dead-ends in user journeys, leaving users unsure of how to proceed or what actions are expected of them next.
 **Action:** Always provide clear, actionable CTA buttons in empty or terminal UI states to guide users seamlessly toward the next logical step in the application flow.
+
+## 2026-10-18 - Screen Reader Noise from Inline Emojis
+**Learning:** Screen readers announce inline text emojis (e.g., "📊 Dashboard") verbatim, which adds auditory clutter and creates a confusing experience for visually impaired users.
+**Action:** Always wrap decorative or inline emojis in a `<span aria-hidden="true">` when the adjacent text already conveys the full meaning, ensuring a clean and focused auditory experience.
