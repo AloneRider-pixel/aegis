@@ -7,7 +7,7 @@
 **Code:** [github.com/AloneRider-pixel/aegis](https://github.com/AloneRider-pixel/aegis) (reference platform; no public deployment)
 
 A production-oriented incident-response reference platform that combines telemetry, operational knowledge, RAG, and bounded AI investigation while keeping impactful remediation behind explicit human approval.
-> **Demo data:** all evaluation fixtures and demo scenarios in this repository are synthetic and deterministic. They validate engineering behavior - state transitions, approval gating, retrieval wiring - and are not production model benchmarks.
+> **Demo data:** all evaluation fixtures and demo scenarios in this repository are synthetic and deterministic. They validate engineering behavior - state transitions, approval gating, offline retrieval contracts - and are not production model benchmarks.
 
 
 
@@ -35,7 +35,7 @@ Execution + audit trail
 
 - LangGraph investigation workflows with bounded tool execution.
 - Metrics, logs, traces, deployment, runbook, and incident-history context.
-- RAG with pgvector semantic search and metadata filtering.
+- Knowledge search currently uses a SQL ILIKE substring baseline with a fixed, uncalibrated relevance score. pgvector semantic retrieval and metadata filtering are intended architecture, not a working search path in this revision. The agent runbook tool references a missing `knowledge_service`; end-to-end retrieval wiring remains unfinished.
 - Prompt-injection defenses for untrusted operational content.
 - Explicit incident state transitions and audit logging.
 - Reproducible failure simulation.
@@ -62,7 +62,7 @@ graph TB
 |---|---|
 | Backend | Python 3.12, FastAPI, SQLAlchemy, Alembic |
 | AI | LangGraph, configurable LLM provider |
-| Retrieval | pgvector, sentence-transformers |
+| Retrieval | SQL ILIKE baseline; pgvector and sentence-transformers are intended, not wired into the current search endpoint |
 | Data | PostgreSQL 16, Redis 7 |
 | Frontend | React, Vite, Tailwind CSS |
 | Observability | OpenTelemetry, structured logging |

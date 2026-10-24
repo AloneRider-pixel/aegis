@@ -1,0 +1,92 @@
+{
+  "dataset": "synthetic-golden-v1",
+  "mode": "offline-substring-baseline",
+  "limitations": [
+    "No LLM generation",
+    "No semantic faithfulness judge",
+    "No live pgvector retrieval",
+    "Exact-quote support only"
+  ],
+  "retrieval_hit_rate": 1.0,
+  "contract_pass": true,
+  "cases": [
+    {
+      "id": "pool",
+      "retrieved_ids": [
+        "pool"
+      ],
+      "retrieval_pass": true,
+      "support_proxy": true,
+      "expected_support": true,
+      "support_check_pass": true
+    },
+    {
+      "id": "timeout",
+      "retrieved_ids": [
+        "timeout"
+      ],
+      "retrieval_pass": true,
+      "support_proxy": true,
+      "expected_support": true,
+      "support_check_pass": true
+    },
+    {
+      "id": "memory",
+      "retrieved_ids": [
+        "memory"
+      ],
+      "retrieval_pass": true,
+      "support_proxy": true,
+      "expected_support": true,
+      "support_check_pass": true
+    },
+    {
+      "id": "invented-remediation",
+      "retrieved_ids": [
+        "pool"
+      ],
+      "retrieval_pass": true,
+      "support_proxy": false,
+      "expected_support": false,
+      "support_check_pass": true
+    },
+    {
+      "id": "wrong-citation",
+      "retrieved_ids": [
+        "timeout"
+      ],
+      "retrieval_pass": true,
+      "support_proxy": false,
+      "expected_support": false,
+      "support_check_pass": true
+    },
+    {
+      "id": "missing-citation",
+      "retrieved_ids": [
+        "memory"
+      ],
+      "retrieval_pass": true,
+      "support_proxy": false,
+      "expected_support": false,
+      "support_check_pass": true
+    },
+    {
+      "id": "unknown-abstention",
+      "retrieved_ids": [],
+      "retrieval_pass": true,
+      "support_proxy": true,
+      "expected_support": true,
+      "support_check_pass": true
+    },
+    {
+      "id": "unrelated-answer",
+      "retrieved_ids": [
+        "pool"
+      ],
+      "retrieval_pass": true,
+      "support_proxy": false,
+      "expected_support": false,
+      "support_check_pass": true
+    }
+  ]
+}

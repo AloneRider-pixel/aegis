@@ -1,0 +1,114 @@
+{
+  "provenance": "All documents, questions and answers are authored synthetic fixtures. No client or production data.",
+  "documents": [
+    {
+      "id": "pool",
+      "content": "Pool exhaustion: inspect active connections. Human approval is required before restarting the database."
+    },
+    {
+      "id": "timeout",
+      "content": "Request timeout: inspect downstream latency before changing retry limits."
+    },
+    {
+      "id": "memory",
+      "content": "Memory pressure: collect a heap profile before changing resource limits."
+    },
+    {
+      "id": "distractor",
+      "content": "Deployment checklist: record the release version and rollback owner."
+    }
+  ],
+  "cases": [
+    {
+      "id": "pool",
+      "query": "Pool exhaustion",
+      "relevant_ids": [
+        "pool"
+      ],
+      "answer": "Pool exhaustion: inspect active connections.",
+      "citations": [
+        "pool"
+      ],
+      "expected_support": true
+    },
+    {
+      "id": "timeout",
+      "query": "Request timeout",
+      "relevant_ids": [
+        "timeout"
+      ],
+      "answer": "Request timeout: inspect downstream latency before changing retry limits.",
+      "citations": [
+        "timeout"
+      ],
+      "expected_support": true
+    },
+    {
+      "id": "memory",
+      "query": "Memory pressure",
+      "relevant_ids": [
+        "memory"
+      ],
+      "answer": "Memory pressure: collect a heap profile before changing resource limits.",
+      "citations": [
+        "memory"
+      ],
+      "expected_support": true
+    },
+    {
+      "id": "invented-remediation",
+      "query": "Pool exhaustion",
+      "relevant_ids": [
+        "pool"
+      ],
+      "answer": "Restart the database automatically.",
+      "citations": [
+        "pool"
+      ],
+      "expected_support": false
+    },
+    {
+      "id": "wrong-citation",
+      "query": "Request timeout",
+      "relevant_ids": [
+        "timeout"
+      ],
+      "answer": "Request timeout: inspect downstream latency before changing retry limits.",
+      "citations": [
+        "memory"
+      ],
+      "expected_support": false
+    },
+    {
+      "id": "missing-citation",
+      "query": "Memory pressure",
+      "relevant_ids": [
+        "memory"
+      ],
+      "answer": "Memory pressure: collect a heap profile before changing resource limits.",
+      "citations": [],
+      "expected_support": false
+    },
+    {
+      "id": "unknown-abstention",
+      "query": "quasar failover",
+      "relevant_ids": [],
+      "answer": "",
+      "citations": [],
+      "abstain": true,
+      "expected_support": true
+    },
+    {
+      "id": "unrelated-answer",
+      "query": "Pool exhaustion",
+      "relevant_ids": [
+        "pool"
+      ],
+      "answer": "Deployment checklist: record the release version and rollback owner.",
+      "citations": [
+        "pool"
+      ],
+      "expected_support": false
+    }
+  ]
+}
