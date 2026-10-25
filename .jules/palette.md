@@ -4,3 +4,6 @@
 ## 2024-05-24 - Stuck Secondary States in Master-Detail Views
 **Learning:** When implementing master-detail patterns with secondary overriding views (like an investigation report or error states that replace the detail view), users become confused if these secondary states persist when they select a new master item. They mistakenly attribute the old secondary state to the newly selected item.
 **Action:** Always explicitly clear secondary, overriding state variables (e.g., `investigationResult`, `approveError`) inside the item selection handler (`handleSelect`) to ensure a fresh detail view for the newly selected item.
+## 2024-10-25 - Missing Keyboard Shortcut Hints
+**Learning:** While implementing keyboard shortcuts for accessibility is crucial, users often won't know they exist unless explicitly told. If `Esc` closes a modal or `Enter` opens an item in a list, it's not intuitive for users relying on screen readers or keyboard navigation to blindly guess.
+**Action:** Always add visual shortcut indicators (like `<kbd>Esc</kbd>`) next to the related UI elements (e.g. close buttons) or in empty state descriptive texts to improve discoverability.
