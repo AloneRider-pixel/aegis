@@ -17,3 +17,6 @@
 ## 2026-10-18 - Screen Reader Noise from Inline Emojis
 **Learning:** Screen readers announce inline text emojis (e.g., "📊 Dashboard") verbatim, which adds auditory clutter and creates a confusing experience for visually impaired users.
 **Action:** Always wrap decorative or inline emojis in a `<span aria-hidden="true">` when the adjacent text already conveys the full meaning, ensuring a clean and focused auditory experience.
+## 2026-10-27 - Contextual Form Error Announcements
+**Learning:** When forms display a generic error message below the inputs (e.g., "Invalid credentials" after a failed login), screen readers will not automatically announce it to the user who might currently be focused on an input field.
+**Action:** When adding visual error states to form inputs, always pair them with `aria-invalid="true"` and `aria-describedby` linking directly to the error message container (with `role="alert"`) to ensure screen readers announce the error contextually upon field focus.
