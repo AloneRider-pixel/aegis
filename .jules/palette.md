@@ -4,3 +4,6 @@
 ## 2024-05-24 - Stuck Secondary States in Master-Detail Views
 **Learning:** When implementing master-detail patterns with secondary overriding views (like an investigation report or error states that replace the detail view), users become confused if these secondary states persist when they select a new master item. They mistakenly attribute the old secondary state to the newly selected item.
 **Action:** Always explicitly clear secondary, overriding state variables (e.g., `investigationResult`, `approveError`) inside the item selection handler (`handleSelect`) to ensure a fresh detail view for the newly selected item.
+## 2023-10-28 - Login Form Accessibility
+**Learning:** Visual error states on form inputs are not enough. They must be explicitly associated with `aria-invalid="true"` and an `aria-describedby` that links to the specific error message block for screen readers to provide adequate context.
+**Action:** Always ensure any dynamic input field error styling is paired with these appropriate ARIA attributes.
