@@ -51,13 +51,13 @@ function Login({ onLogin }) {
         <form onSubmit={handleSubmit} className="space-y-4 bg-gray-900 p-6 rounded-xl border border-gray-800">
   <div>
     <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email <span aria-hidden="true" className="text-red-500">*</span></label>
-    <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@aegis.io" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" required disabled={isLoggingIn} />
+    <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@aegis.io" className={`w-full px-4 py-2 bg-gray-800 border ${error ? 'border-red-500' : 'border-gray-700'} rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`} required disabled={isLoggingIn} aria-invalid={!!error} aria-describedby={error ? "login-error" : undefined} />
   </div>
   <div>
     <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password <span aria-hidden="true" className="text-red-500">*</span></label>
-    <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" required disabled={isLoggingIn} />
+    <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className={`w-full px-4 py-2 bg-gray-800 border ${error ? 'border-red-500' : 'border-gray-700'} rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`} required disabled={isLoggingIn} aria-invalid={!!error} aria-describedby={error ? "login-error" : undefined} />
   </div>
-  {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
+  {error && <p id="login-error" className="text-red-400 text-sm" role="alert">{error}</p>}
   <button type="submit" disabled={isLoggingIn} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
     {isLoggingIn ? <span className="flex items-center justify-center gap-2"><Spinner /> Signing In...</span> : 'Sign In'}
   </button>
