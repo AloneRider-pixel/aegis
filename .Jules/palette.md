@@ -17,3 +17,7 @@
 ## 2026-10-18 - Screen Reader Noise from Inline Emojis
 **Learning:** Screen readers announce inline text emojis (e.g., "📊 Dashboard") verbatim, which adds auditory clutter and creates a confusing experience for visually impaired users.
 **Action:** Always wrap decorative or inline emojis in a `<span aria-hidden="true">` when the adjacent text already conveys the full meaning, ensuring a clean and focused auditory experience.
+
+## 2025-03-03 - Contextual Error Binding
+**Learning:** Adding visible red borders on form inputs during an error state improves visual UX, but without pairing them with `aria-invalid="true"` and an `aria-describedby` linking to the error message (with `role="alert"`), screen readers will not announce the specific error message when the input receives focus.
+**Action:** When adding visual error states to form inputs, always pair them with `aria-invalid="true"` and `aria-describedby` linking directly to the error message container to ensure screen readers announce the error contextually upon field focus.
