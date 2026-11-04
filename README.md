@@ -35,7 +35,7 @@ Execution + audit trail
 
 - LangGraph investigation workflows with bounded tool execution.
 - Metrics, logs, traces, deployment, runbook, and incident-history context.
-- Knowledge search currently uses a SQL ILIKE substring baseline with a fixed, uncalibrated relevance score. pgvector semantic retrieval and metadata filtering are intended architecture, not a working search path in this revision. The agent runbook tool references a missing `knowledge_service`; end-to-end retrieval wiring remains unfinished.
+- Knowledge search uses a SQL ILIKE substring baseline with a fixed, uncalibrated relevance score, shared by the HTTP endpoint and the agent's runbook tool (`app/services/knowledge_service.py`). The agent path queries through the sync database URL and degrades to an empty, logged result when no database is reachable rather than crashing the investigation. pgvector semantic retrieval remains intended architecture, not a working search path in this revision.
 - Prompt-injection defenses for untrusted operational content.
 - Explicit incident state transitions and audit logging.
 - Reproducible failure simulation.
