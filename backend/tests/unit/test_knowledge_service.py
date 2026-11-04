@@ -68,3 +68,18 @@ def test_blank_query_returns_empty(db_url):
 def test_unreachable_database_degrades_to_empty_not_crash():
     # Port 1 refuses immediately: the agent investigates from telemetry alone.
     assert search_knowledge("anything", db_url="postgresql://u:p@127.0.0.1:1/none") == []
+
+
+class TestPreviousIncidentsTool:
+    def test_returns_empty_history_with_evidence_note(self):
+        from app.ai.tools.runbooks import search_previous_incidents
+        out = search_previous_incidents("5xx spike")
+        assert out["results"] == [] and out["total_found"] == 0
+        assert out["source"] == "incident_history" and out["note"]
+
+    def test_search_runbook_degrades_without_database(self):
+        # No Postgres in the unit-test environment: the tool must return an
+        # empty result set with its source label, not raise.
+        from app.ai.tools.runbooks import search_runbook
+        out = search_runbook("connection pool", service="checkout")
+        assert out["results"] == [] and out["source"] == "rag_knowledge_base"
