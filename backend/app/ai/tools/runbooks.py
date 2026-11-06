@@ -1,7 +1,10 @@
 """
 Runbooks Tool — searches the RAG knowledge base for relevant runbooks.
 """
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 def search_runbook(
@@ -40,14 +43,23 @@ def search_previous_incidents(
     Search previous incidents for similar patterns.
     Helps the agent learn from past incidents.
     """
-    from app.services.incident_service import search_similar_incidents
+    try:
+        from app.services.incident_service import search_similar_incidents
 
-    results = search_similar_incidents(query=query, severity=severity, top_k=top_k)
+        results = search_similar_incidents(query=query, severity=severity, top_k=top_k)
+        note = "Historical evidence — distinguish from current incident evidence"
+    except Exception as exc:  # noqa: BLE001 - history must never crash an
+        # investigation; its import chain pulls in the database stack, which
+        # is absent in offline/tool-only environments. The reason is logged.
+        logger.warning("incident history unavailable (%s: %s); continuing "
+                       "from current evidence only", type(exc).__name__, exc)
+        results = []
+        note = "Incident history unavailable; investigation continues from current evidence only"
 
     return {
         "query": query,
         "results": results,
         "total_found": len(results),
         "source": "incident_history",
-        "note": "Historical evidence — distinguish from current incident evidence",
+        "note": note,
     }
