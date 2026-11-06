@@ -84,3 +84,20 @@ class TestTelemetryStore:
 
         assert [entry["message"] for entry in logs] == ["recent entry"]
 
+
+class TestLogLevelFiltering:
+    def test_level_filter_matches_case_insensitively(self):
+        """The investigation agent queries level="error" while the simulator
+        records levels as "ERROR"/"WARN"; the filter must match either case."""
+        telemetry_store.reset()
+        telemetry_store.add_log("svc", "ERROR", "connection pool exhausted")
+        telemetry_store.add_log("svc", "WARN", "pool at 95%")
+        logs = telemetry_store.get_logs(service_name="svc", level="error")
+        assert len(logs) == 1
+        assert logs[0]["message"] == "connection pool exhausted"
+
+    def test_level_filter_uppercase_query_matches_lowercase_entries(self):
+        telemetry_store.reset()
+        telemetry_store.add_log("svc", "error", "lowercase entry")
+        logs = telemetry_store.get_logs(service_name="svc", level="ERROR")
+        assert len(logs) == 1

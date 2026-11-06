@@ -96,7 +96,7 @@ class TelemetryStore:
                     continue
                 if service_name and log["service"] != service_name:
                     continue
-                if level and log["level"] != level:
+                if level and log["level"].lower() != level.lower():
                     continue
                 if query and query.lower() not in log["message"].lower():
                     continue
