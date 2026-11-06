@@ -450,16 +450,19 @@ function IncidentsPage({ setPage }) {
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-bold text-white"><span aria-hidden="true">🤖</span> AI Investigation Report</h3>
-              <button
-                onClick={() => setInvestigationResult(null)}
-                title="Close report (Esc)"
-                aria-label="Close report (Esc)"
-                className="text-gray-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 rounded p-1"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <kbd className="hidden sm:inline-block px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded-md text-xs text-gray-400 font-sans shadow-sm">Esc</kbd>
+                <button
+                  onClick={() => setInvestigationResult(null)}
+                  title="Close report (Esc)"
+                  aria-label="Close report (Esc)"
+                  className="text-gray-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 rounded p-1"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
             <div className="space-y-4">
               <div>
@@ -502,16 +505,19 @@ function IncidentsPage({ setPage }) {
                 <SeverityBadge severity={selected.severity} />
                 <StatusBadge status={selected.status} />
               </div>
-              <button
-                onClick={() => setSelected(null)}
-                title="Close details (Esc)"
-                aria-label="Close details (Esc)"
-                className="text-gray-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 rounded p-1"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <kbd className="hidden sm:inline-block px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded-md text-xs text-gray-400 font-sans shadow-sm">Esc</kbd>
+                <button
+                  onClick={() => setSelected(null)}
+                  title="Close details (Esc)"
+                  aria-label="Close details (Esc)"
+                  className="text-gray-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 rounded p-1"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
             <h3 className="text-lg font-bold text-white">{selected.title}</h3>
             {selected.symptoms?.length > 0 && (
@@ -527,7 +533,7 @@ function IncidentsPage({ setPage }) {
           <div className="bg-gray-900 rounded-xl p-12 border border-gray-800 flex flex-col items-center justify-center text-center">
             <span className="text-4xl mb-4" aria-hidden="true">👀</span>
             <p className="text-gray-300 font-medium">Select an incident to view details</p>
-            <p className="text-gray-500 text-sm mt-2 max-w-sm">Click on any incident in the list to see symptoms and AI investigations.</p>
+            <p className="text-gray-500 text-sm mt-2 max-w-sm">Click or press <kbd className="px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded-md text-xs text-gray-300 font-sans shadow-sm mx-1">Enter</kbd> on any incident in the list to see details.</p>
           </div>
         )}
       </div>
