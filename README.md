@@ -36,7 +36,6 @@ Execution + audit trail
 - LangGraph investigation workflows with bounded tool execution.
 - Metrics, logs, traces, deployment, runbook, and incident-history context.
 - Knowledge search uses a SQL ILIKE substring baseline with a fixed, uncalibrated relevance score, shared by the HTTP endpoint and the agent's runbook tool (`app/services/knowledge_service.py`). The agent path queries through the sync database URL and degrades to an empty, logged result when no database is reachable rather than crashing the investigation. pgvector semantic retrieval remains intended architecture, not a working search path in this revision.
-- Prompt-injection defenses for untrusted operational content.
 - Explicit incident state transitions and audit logging.
 - Reproducible failure simulation.
 - JWT/RBAC, rate limiting, CodeQL, dependency review, and Scorecard.
@@ -51,7 +50,7 @@ graph TB
     INC --> AGENT[LangGraph Agent]
     AGENT --> TOOLS[Telemetry / Deployment / Runbook Tools]
     AGENT --> RAG[RAG]
-    RAG --> PG[(PostgreSQL + pgvector)]
+    RAG --> PG[(PostgreSQL; pgvector intended)]
     INC --> REDIS[(Redis)]
     SIM[Failure Simulator] --> TEL[Telemetry]
 ```
@@ -98,6 +97,17 @@ pnpm build
 ```
 
 CI also validates CodeQL, dependency review, Scorecard, and the repository's Docker build path.
+
+## Verified results
+
+Measured at commit `11bc44d` (Python 3.12; synthetic deterministic fixtures, no external services required).
+
+**Test suite**
+- 50 passed, 0 failed, from three non-overlapping invocations:
+  - `cd backend && APP_ENV=test python -m pytest tests/unit tests/integration -q` - 38 passed (backend Settings require four test-only values: `secret_key`, `postgres_password`, `jwt_secret_key`, `default_admin_password`, supplied via a local untracked `.env`).
+  - `APP_ENV=test PYTHONPATH=backend python -m pytest tests/test_portfolio_execution_policy.py -q` - 4 passed.
+  - `cd backend && python -m pytest ../evaluation/rag/test_rag_eval.py -q` - 8 passed.
+- Fixtures validate engineering behavior (state transitions, approval gating, offline retrieval contracts); they are not production model benchmarks (see [Evaluation integrity](#evaluation-integrity)).
 
 ## Security model
 
