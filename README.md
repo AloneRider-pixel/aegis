@@ -104,7 +104,7 @@ Measured at commit `11bc44d` (Python 3.12; synthetic deterministic fixtures, no 
 
 **Test suite**
 - 50 passed, 0 failed, from three non-overlapping invocations:
-  - `cd backend && APP_ENV=test python -m pytest tests/unit tests/integration -q` - 38 passed (backend Settings require four test-only values: `secret_key`, `postgres_password`, `jwt_secret_key`, `default_admin_password`, supplied via a local untracked `.env`).
+  - `cd backend && APP_ENV=test python -m pytest tests/unit tests/integration -q` - 38 passed (backend Settings require four test-only values: `secret_key`, `postgres_password`, `jwt_secret_key`, `default_admin_password`, supplied via a local untracked `backend/.env`).
   - `APP_ENV=test PYTHONPATH=backend python -m pytest tests/test_portfolio_execution_policy.py -q` - 4 passed.
   - `cd backend && python -m pytest ../evaluation/rag/test_rag_eval.py -q` - 8 passed.
 - Fixtures validate engineering behavior (state transitions, approval gating, offline retrieval contracts); they are not production model benchmarks (see [Evaluation integrity](#evaluation-integrity)).
