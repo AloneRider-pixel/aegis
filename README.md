@@ -119,6 +119,12 @@ Do not place credentials in the repository or expose server-side secrets through
 
 The repository contains deterministic and synthetic fixtures for engineering validation. Those fixtures are not production model benchmarks. Any public quality, reliability, latency, or accuracy claim should identify its dataset/workload, methodology, environment, sample count, and producing commit.
 
+## Limitations
+
+- Prototype evaluated with synthetic demo data; it is not connected to production observability systems.
+- Metrics, logs, traces and deployment data come from simulated fixtures, not live integrations.
+- Impactful remediation is gated behind explicit human approval; the agent makes no automated production changes.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
