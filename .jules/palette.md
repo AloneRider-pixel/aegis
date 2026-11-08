@@ -7,3 +7,7 @@
 ## 2024-10-25 - Missing Keyboard Shortcut Hints
 **Learning:** While implementing keyboard shortcuts for accessibility is crucial, users often won't know they exist unless explicitly told. If `Esc` closes a modal or `Enter` opens an item in a list, it's not intuitive for users relying on screen readers or keyboard navigation to blindly guess.
 **Action:** Always add visual shortcut indicators (like `<kbd>Esc</kbd>`) next to the related UI elements (e.g. close buttons) or in empty state descriptive texts to improve discoverability.
+
+## 2025-02-20 - Make notification banners dismissible
+**Learning:** Transient error banners (like API failure messages for action outcomes) that are not dismissible create a dead-end UX, confusing users who cannot easily clear them without triggering other side effects.
+**Action:** Always include an icon-only dismiss `<button>` (with `aria-label="Dismiss error"`) in inline or toast-like error notifications to allow users to acknowledge and close the message safely.
