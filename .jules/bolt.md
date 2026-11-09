@@ -7,3 +7,6 @@
 ## 2023-10-24 - Async Event Loop Blocking from bcrypt
 **Learning:** Synchronous CPU-bound operations (like `bcrypt.checkpw`) inside FastAPI `async def` endpoints block the main event loop, severely impacting concurrent request throughput.
 **Action:** Offload CPU-bound cryptographic operations to a separate thread using `fastapi.concurrency.run_in_threadpool`.
+## 2024-05-18 - SQLAlchemy Engine Caching
+**Learning:** Recreating a SQLAlchemy engine on every RAG knowledge search call destroys connection pooling, significantly increasing query latency for successive queries.
+**Action:** Extract `create_engine` into a module-level helper wrapped with `@functools.lru_cache()` and omit `engine.dispose()` for the active session, allowing connection pools to be reused across successive synchronous tool queries.

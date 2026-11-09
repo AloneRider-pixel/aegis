@@ -19,10 +19,17 @@ harness), the search logs the reason and returns an empty list: the agent
 then investigates from telemetry alone instead of crashing. An empty
 knowledge base is a truthful answer; a fabricated runbook would not be.
 """
+import functools
 import logging
 from typing import Any
 
+from sqlalchemy import create_engine
+
 logger = logging.getLogger(__name__)
+
+@functools.lru_cache()
+def get_engine(db_url: str):
+    return create_engine(db_url)
 
 # Same uncalibrated constant the HTTP endpoint returns today (see README's
 # honesty note on the ILIKE baseline). Not a semantic relevance score.
@@ -48,32 +55,29 @@ def search_knowledge(
         if db_url is None:
             from app.config import settings
             db_url = settings.database_url
-        from sqlalchemy import create_engine, select
+        from sqlalchemy import select
         from sqlalchemy.orm import Session
 
         from app.models import Document
 
-        engine = create_engine(db_url)
-        try:
-            with Session(engine) as session:
-                stmt = select(Document).where(
-                    Document.content.ilike(f"%{query}%"))
-                if service:
-                    stmt = stmt.where(Document.service == service)
-                if document_type:
-                    stmt = stmt.where(Document.document_type == document_type)
-                stmt = stmt.limit(top_k)
-                docs = session.scalars(stmt).all()
-                return [{
-                    "document_id": str(d.id),
-                    "title": d.title,
-                    "content": d.content[:_CONTENT_PREVIEW],
-                    "document_type": d.document_type,
-                    "service": d.service,
-                    "relevance_score": _RESULT_SCORE,
-                } for d in docs]
-        finally:
-            engine.dispose()
+        engine = get_engine(db_url)
+        with Session(engine) as session:
+            stmt = select(Document).where(
+                Document.content.ilike(f"%{query}%"))
+            if service:
+                stmt = stmt.where(Document.service == service)
+            if document_type:
+                stmt = stmt.where(Document.document_type == document_type)
+            stmt = stmt.limit(top_k)
+            docs = session.scalars(stmt).all()
+            return [{
+                "document_id": str(d.id),
+                "title": d.title,
+                "content": d.content[:_CONTENT_PREVIEW],
+                "document_type": d.document_type,
+                "service": d.service,
+                "relevance_score": _RESULT_SCORE,
+            } for d in docs]
     except Exception as exc:  # noqa: BLE001 - a missing/unreachable knowledge
         # base must degrade the investigation, never crash it; the reason is
         # logged so the degradation is visible in the audit trail.
