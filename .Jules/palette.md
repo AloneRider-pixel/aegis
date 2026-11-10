@@ -20,3 +20,6 @@
 ## 2026-10-21 - Visual Error States and Accessibility
 **Learning:** Adding a visual error state (like a red border) to an input field is not enough for screen reader users to understand there is an error when they focus the field.
 **Action:** Always pair visual error states on form inputs with `aria-invalid="true"` and `aria-describedby` linking directly to an error message container (with `role="alert"`) to ensure screen readers announce the error contextually upon field focus.
+## 2024-05-27 - Dismissible Error States
+**Learning:** Transient error or notification banners that cannot be dismissed create dead-end UX, trapping users with stale or irrelevant error messages blocking screen real estate.
+**Action:** Always make transient error states manually dismissible by including an icon-only `<button>` with `aria-label="Dismiss error"` to allow users to safely clear the message.

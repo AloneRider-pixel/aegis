@@ -269,7 +269,10 @@ function SimulatorPage({ setPage }) {
         ))}
       </div>
       {result && result.error && (
-        <div role="alert" className="mt-6 bg-red-900/20 rounded-xl p-4 border border-red-800">
+        <div role="alert" className="mt-6 bg-red-900/20 rounded-xl p-4 border border-red-800 relative">
+          <button aria-label="Dismiss error" onClick={() => setResult(null)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded p-1">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
           <h3 className="text-red-400 font-medium mb-2"><span aria-hidden="true">❌</span> Scenario Trigger Failed</h3>
           <p className="text-red-300 text-sm">{result.error}</p>
         </div>
@@ -398,7 +401,10 @@ function IncidentsPage({ setPage }) {
       <div className="w-1/2">
         <h2 className="text-xl font-bold text-white mb-4">Incidents</h2>
         {approveError && (
-          <div role="alert" className="mb-4 bg-red-900/20 rounded-xl p-4 border border-red-800">
+          <div role="alert" className="mb-4 bg-red-900/20 rounded-xl p-4 border border-red-800 relative">
+            <button aria-label="Dismiss error" onClick={() => setApproveError(null)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded p-1">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
             <h3 className="text-red-400 font-medium mb-1"><span aria-hidden="true">❌</span> Approval Failed</h3>
             <p className="text-red-300 text-sm">{approveError}</p>
           </div>
@@ -442,7 +448,10 @@ function IncidentsPage({ setPage }) {
       </div>
       <div className="w-1/2">
         {investigationResult && investigationResult.error ? (
-          <div className="bg-gray-900 rounded-xl p-6 border border-red-800" role="alert">
+          <div className="bg-gray-900 rounded-xl p-6 border border-red-800 relative" role="alert">
+            <button aria-label="Dismiss error" onClick={() => setInvestigationResult(null)} className="absolute top-2 right-2 text-red-400 hover:text-red-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded p-1">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
             <h3 className="text-red-400 font-bold mb-2"><span aria-hidden="true">❌</span> Investigation Failed</h3>
             <p className="text-gray-300 text-sm">{investigationResult.error}</p>
           </div>
