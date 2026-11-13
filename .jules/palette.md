@@ -7,6 +7,9 @@
 ## 2024-10-25 - Missing Keyboard Shortcut Hints
 **Learning:** While implementing keyboard shortcuts for accessibility is crucial, users often won't know they exist unless explicitly told. If `Esc` closes a modal or `Enter` opens an item in a list, it's not intuitive for users relying on screen readers or keyboard navigation to blindly guess.
 **Action:** Always add visual shortcut indicators (like `<kbd>Esc</kbd>`) next to the related UI elements (e.g. close buttons) or in empty state descriptive texts to improve discoverability.
+## 2024-11-20 - Dismissible Transient Error Banners Prevent Dead-end UX
+**Learning:** When displaying transient errors (like async action failures or successful notifications in banners), if they cannot be dismissed, users are forced to navigate away or endure a dead-end UX.
+**Action:** Always add dismiss buttons to transient error and notification banners. The buttons should use an icon-only `<button>` with `aria-label="Dismiss error"` (or similar) to allow users to clear the message safely without navigating away or triggering side effects. Include relative positioning on the banner and right padding to ensure content doesn't overlap with the button.
 ## 2024-11-11 - Missing explicit accessibility roles for async success states
 **Learning:** When async actions (like triggering a scenario or running an AI investigation) complete successfully and render a visual success banner or report, screen reader users are left in the dark unless the container explicitly uses `role="status"` or `aria-live="polite"`. The error states were correctly using `role="alert"`, but success states were completely silent, creating a disparate experience.
 **Action:** Always add `role="status" aria-live="polite"` to dynamically rendered success banners, toast notifications, or generated reports to ensure equitable feedback and announce task completion to screen reader users.

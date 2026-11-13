@@ -61,4 +61,17 @@ test('feedback timer is cleaned up on effect cleanup', () => {
 test('copy failure has an honest accessible label', () => {
   assert.match(component, /aria-label=\{copyError \? "Copy failed\. Select and copy the text manually\."/);
 });
+test('HTTP errors become investigation errors, never successful reports', async () => {
+  const body = source.match(/const investigate = React.useCallback\(async \(id\) => \{([\s\S]*?)\n  \}, \[loadIncidents\]\)/)?.[1];
+  assert.ok(body);
+  const state = {};
+  const run = new AsyncFunction('id','fetch','API','getHeaders','setInvestigatingId','setInvestigationResult','loadIncidents',body);
+  let reloads = 0;
+  await run('fixture-id',async () => ({ok:false,json:async()=>({detail:'Synthetic HTTP failure'})}),'local',()=>({}),()=>{},x=>state.result=x,()=>reloads++);
+  assert.deepEqual(state.result,{error:'Synthetic HTTP failure'});
+  assert.equal(reloads,0);
+  await run('fixture-id',async () => ({ok:true,json:async()=>({root_cause:'Fixture'})}),'local',()=>({}),()=>{},x=>state.result=x,()=>reloads++);
+  assert.deepEqual(state.result,{root_cause:'Fixture'});
+  assert.equal(reloads,1);
+});
 JS
