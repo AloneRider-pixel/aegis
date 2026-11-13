@@ -309,7 +309,7 @@ function SimulatorPage({ setPage }) {
         </div>
       )}
       {result && !result.error && (
-        <div className="mt-6 bg-gray-900 rounded-xl p-4 border border-green-800">
+        <div className="mt-6 bg-gray-900 rounded-xl p-4 border border-green-800" role="status" aria-live="polite">
           <h3 className="text-green-400 font-medium mb-2"><span aria-hidden="true">✅</span> Scenario Triggered</h3>
           <p className="text-gray-300 text-sm">Incident created: <strong>{result.incident_id}</strong></p>
           <p className="text-gray-400 text-sm mt-1 mb-3">Telemetry generated. Go to Incidents to investigate with AI.</p>
@@ -481,7 +481,7 @@ function IncidentsPage({ setPage }) {
             <p className="text-gray-300 text-sm">{investigationResult.error}</p>
           </div>
         ) : investigationResult && !investigationResult.error ? (
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800" role="status" aria-live="polite">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-bold text-white"><span aria-hidden="true">🤖</span> AI Investigation Report</h3>
               <div className="flex items-center gap-2">

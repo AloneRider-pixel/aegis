@@ -7,3 +7,6 @@
 ## 2024-10-25 - Missing Keyboard Shortcut Hints
 **Learning:** While implementing keyboard shortcuts for accessibility is crucial, users often won't know they exist unless explicitly told. If `Esc` closes a modal or `Enter` opens an item in a list, it's not intuitive for users relying on screen readers or keyboard navigation to blindly guess.
 **Action:** Always add visual shortcut indicators (like `<kbd>Esc</kbd>`) next to the related UI elements (e.g. close buttons) or in empty state descriptive texts to improve discoverability.
+## 2024-11-11 - Missing explicit accessibility roles for async success states
+**Learning:** When async actions (like triggering a scenario or running an AI investigation) complete successfully and render a visual success banner or report, screen reader users are left in the dark unless the container explicitly uses `role="status"` or `aria-live="polite"`. The error states were correctly using `role="alert"`, but success states were completely silent, creating a disparate experience.
+**Action:** Always add `role="status" aria-live="polite"` to dynamically rendered success banners, toast notifications, or generated reports to ensure equitable feedback and announce task completion to screen reader users.
