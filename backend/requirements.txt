@@ -18,7 +18,7 @@ redis==8.1.0
 langgraph>=1.2.20
 langchain-core>=1.7.7
 langchain-openai>=1.7.2
-openai>=3.37.0
+openai>=3.49.0
 tiktoken>=0.14.0
 
 # Auth
