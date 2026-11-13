@@ -16,6 +16,40 @@ function Spinner() {
   );
 }
 
+function CopyButton({ textToCopy, ariaLabel }) {
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  const handleCopy = async () => {
+    setCopied(false);
+    setCopyError(false);
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+    } catch {
+      setCopyError(true);
+    }
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      aria-label={copyError ? "Copy failed. Select and copy the text manually." : copied ? "Copied" : ariaLabel}
+      title={copyError ? "Copy failed. Select and copy the text manually." : copied ? "Copied!" : "Copy to clipboard"}
+      className="ml-2 p-1 text-gray-500 hover:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded transition-colors"
+    >
+      {copied ? (
+        <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+      ) : (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+      )}
+    </button>
+  );
+}
+
 // ─── Login Page ───
 function Login({ onLogin }) {
   const [email, setEmail] = useState('admin@aegis.io')
@@ -280,7 +314,7 @@ function SimulatorPage({ setPage }) {
         </div>
       )}
       {result && !result.error && (
-        <div className="mt-6 bg-gray-900 rounded-xl p-4 border border-green-800 relative pr-12">
+        <div className="mt-6 bg-gray-900 rounded-xl p-4 border border-green-800 relative pr-12" role="status" aria-live="polite">
           <button onClick={() => setResult(null)} aria-label="Dismiss notification" className="absolute top-4 right-4 text-green-400 hover:text-green-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded p-1">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -367,6 +401,7 @@ function IncidentsPage({ setPage }) {
     try {
       const res = await fetch(`${API}/incidents/${id}/investigate`, { method: 'POST', headers: getHeaders() })
       const data = await res.json()
+      if (!res.ok) throw new Error(data.detail || data.error || 'Failed to investigate incident')
       setInvestigationResult(data)
       loadIncidents()
     } catch (err) { setInvestigationResult({ error: err.message }) }
@@ -467,7 +502,7 @@ function IncidentsPage({ setPage }) {
             <p className="text-gray-300 text-sm">{investigationResult.error}</p>
           </div>
         ) : investigationResult && !investigationResult.error ? (
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800" role="status" aria-live="polite">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-bold text-white"><span aria-hidden="true">🤖</span> AI Investigation Report</h3>
               <div className="flex items-center gap-2">
@@ -486,8 +521,11 @@ function IncidentsPage({ setPage }) {
             </div>
             <div className="space-y-4">
               <div>
-                <p className="text-gray-400 text-sm">Root Cause</p>
-                <p className="text-white font-medium">{investigationResult.root_cause}</p>
+                <div className="flex items-center">
+                  <p className="text-gray-400 text-sm">Root Cause</p>
+                  <CopyButton textToCopy={investigationResult.root_cause} ariaLabel="Copy root cause" />
+                </div>
+                <p className="text-white font-medium mt-1">{investigationResult.root_cause}</p>
               </div>
               <div>
                 <p className="text-gray-400 text-sm">Confidence</p>
@@ -500,8 +538,11 @@ function IncidentsPage({ setPage }) {
               </div>
               {investigationResult.recommended_remediation && (
                 <div>
-                  <p className="text-gray-400 text-sm">Recommended Remediation</p>
-                  <p className="text-white">{investigationResult.recommended_remediation.description}</p>
+                  <div className="flex items-center">
+                    <p className="text-gray-400 text-sm">Recommended Remediation</p>
+                    <CopyButton textToCopy={investigationResult.recommended_remediation.description} ariaLabel="Copy recommended remediation" />
+                  </div>
+                  <p className="text-white mt-1">{investigationResult.recommended_remediation.description}</p>
                   <p className="text-gray-500 text-xs mt-1">Risk: {investigationResult.recommended_remediation.risk}</p>
                 </div>
               )}
@@ -607,4 +648,4 @@ export default function App() {
       </main>
     </div>
   )
-}
+          }
