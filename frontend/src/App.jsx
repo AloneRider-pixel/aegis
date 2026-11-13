@@ -16,6 +16,40 @@ function Spinner() {
   );
 }
 
+function CopyButton({ textToCopy, ariaLabel }) {
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  const handleCopy = async () => {
+    setCopied(false);
+    setCopyError(false);
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+    } catch {
+      setCopyError(true);
+    }
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      aria-label={copyError ? "Copy failed. Select and copy the text manually." : copied ? "Copied" : ariaLabel}
+      title={copyError ? "Copy failed. Select and copy the text manually." : copied ? "Copied!" : "Copy to clipboard"}
+      className="ml-2 p-1 text-gray-500 hover:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded transition-colors"
+    >
+      {copied ? (
+        <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+      ) : (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+      )}
+    </button>
+  );
+}
+
 // ─── Login Page ───
 function Login({ onLogin }) {
   const [email, setEmail] = useState('admin@aegis.io')
@@ -466,8 +500,11 @@ function IncidentsPage({ setPage }) {
             </div>
             <div className="space-y-4">
               <div>
-                <p className="text-gray-400 text-sm">Root Cause</p>
-                <p className="text-white font-medium">{investigationResult.root_cause}</p>
+                <div className="flex items-center">
+                  <p className="text-gray-400 text-sm">Root Cause</p>
+                  <CopyButton textToCopy={investigationResult.root_cause} ariaLabel="Copy root cause" />
+                </div>
+                <p className="text-white font-medium mt-1">{investigationResult.root_cause}</p>
               </div>
               <div>
                 <p className="text-gray-400 text-sm">Confidence</p>
@@ -480,8 +517,11 @@ function IncidentsPage({ setPage }) {
               </div>
               {investigationResult.recommended_remediation && (
                 <div>
-                  <p className="text-gray-400 text-sm">Recommended Remediation</p>
-                  <p className="text-white">{investigationResult.recommended_remediation.description}</p>
+                  <div className="flex items-center">
+                    <p className="text-gray-400 text-sm">Recommended Remediation</p>
+                    <CopyButton textToCopy={investigationResult.recommended_remediation.description} ariaLabel="Copy recommended remediation" />
+                  </div>
+                  <p className="text-white mt-1">{investigationResult.recommended_remediation.description}</p>
                   <p className="text-gray-500 text-xs mt-1">Risk: {investigationResult.recommended_remediation.risk}</p>
                 </div>
               )}
@@ -587,4 +627,4 @@ export default function App() {
       </main>
     </div>
   )
-}
+                  }
