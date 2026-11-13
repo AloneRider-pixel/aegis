@@ -101,6 +101,9 @@ jobs:
         working-directory: frontend
         run: pnpm build
 
+      - name: Test clipboard feedback behavior
+        run: bash test_plan.sh
+
   docker-build:
     name: Docker builds
     needs: [backend-quality, frontend-build]
