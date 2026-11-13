@@ -18,16 +18,27 @@ function Spinner() {
 
 function CopyButton({ textToCopy, ariaLabel }) {
   const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(textToCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const [copyError, setCopyError] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  const handleCopy = async () => {
+    setCopied(false);
+    setCopyError(false);
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+    } catch {
+      setCopyError(true);
+    }
   };
   return (
     <button
       onClick={handleCopy}
-      aria-label={copied ? "Copied" : ariaLabel}
-      title={copied ? "Copied!" : "Copy to clipboard"}
+      aria-label={copyError ? "Copy failed. Select and copy the text manually." : copied ? "Copied" : ariaLabel}
+      title={copyError ? "Copy failed. Select and copy the text manually." : copied ? "Copied!" : "Copy to clipboard"}
       className="ml-2 p-1 text-gray-500 hover:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded transition-colors"
     >
       {copied ? (
@@ -616,4 +627,4 @@ export default function App() {
       </main>
     </div>
   )
-}
+                  }
