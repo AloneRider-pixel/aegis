@@ -83,3 +83,49 @@ class TestPreviousIncidentsTool:
         from app.ai.tools.runbooks import search_runbook
         out = search_runbook("connection pool", service="checkout")
         assert out["results"] == [] and out["source"] == "rag_knowledge_base"
+
+
+def test_cached_engine_is_reused_and_not_disposed_per_search(db_url, monkeypatch):
+    import sqlalchemy
+
+    from app.services import knowledge_service
+    knowledge_service._get_engine.cache_clear()
+    created = []
+    original = sqlalchemy.create_engine
+
+    def track(url):
+        engine = original(url)
+        created.append(engine)
+        return engine
+
+    monkeypatch.setattr(sqlalchemy, 'create_engine', track)
+    try:
+        first = search_knowledge('connection pool', db_url=db_url)
+        assert first
+        assert len(created) == 1
+        original_dispose = created[0].dispose
+        disposed = []
+        monkeypatch.setattr(created[0], 'dispose', lambda: disposed.append(True))
+        assert search_knowledge('connection pool', db_url=db_url) == first
+        assert search_knowledge('connection pool', service='billing', db_url=db_url)
+        assert len(created) == 1
+        assert not disposed
+        assert knowledge_service._get_engine(db_url) is created[0]
+        assert knowledge_service._get_engine.cache_info().maxsize == 4
+    finally:
+        for engine in created:
+            original_dispose()
+        knowledge_service._get_engine.cache_clear()
+
+
+def test_cached_engines_keep_database_urls_separate(tmp_path):
+    from app.services.knowledge_service import _get_engine
+    one = _get_engine(f'sqlite:///{tmp_path}/one.db')
+    two = _get_engine(f'sqlite:///{tmp_path}/two.db')
+    try:
+        assert one is not two
+        assert _get_engine(f'sqlite:///{tmp_path}/one.db') is one
+    finally:
+        one.dispose()
+        two.dispose()
+        _get_engine.cache_clear()
