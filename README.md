@@ -6,7 +6,7 @@
 
 **Code:** [github.com/AloneRider-pixel/aegis](https://github.com/AloneRider-pixel/aegis) (reference platform; no public deployment)
 
-A production-oriented incident-response reference platform that combines telemetry, operational knowledge, RAG, and bounded AI investigation while keeping impactful remediation behind explicit human approval.
+An incident-response reference prototype: a rule-based LangGraph investigation (fixed graph logic, no LLM call) over synthetic telemetry; before a simulator scenario has populated telemetry, metric queries fall back to random values, so records can differ between runs and runbooks, with human approval required before simulated remediation. The LLM provider setting is not wired into the investigation yet.
 > **Demo data:** all evaluation fixtures and demo scenarios in this repository are synthetic and deterministic. They validate engineering behavior - state transitions, approval gating, offline retrieval contracts - and are not production model benchmarks.
 
 
@@ -33,7 +33,7 @@ Execution + audit trail
 
 ## Engineering capabilities
 
-- LangGraph investigation workflows with bounded tool execution.
+- A fixed LangGraph investigation chain (rule-based, no LLM call) over synthetic telemetry.
 - Metrics, logs, traces, deployment, runbook, and incident-history context.
 - Knowledge search uses a SQL ILIKE substring baseline with a fixed, uncalibrated relevance score, shared by the HTTP endpoint and the agent's runbook tool (`app/services/knowledge_service.py`). The agent path queries through the sync database URL and degrades to an empty, logged result when no database is reachable rather than crashing the investigation. pgvector semantic retrieval remains intended architecture, not a working search path in this revision.
 - Explicit incident state transitions and audit logging.
@@ -60,13 +60,13 @@ graph TB
 | Layer | Technology |
 |---|---|
 | Backend | Python 3.12, FastAPI, SQLAlchemy, Alembic |
-| AI | LangGraph, configurable LLM provider |
+| AI | LangGraph (rule-based investigation chain, random metric fallback without simulator data; LLM provider setting not wired) |
 | Retrieval | SQL ILIKE baseline; pgvector and sentence-transformers are intended, not wired into the current search endpoint |
 | Data | PostgreSQL 16, Redis 7 |
 | Frontend | React, Vite, Tailwind CSS |
 | Observability | OpenTelemetry, structured logging |
 | Testing | Pytest |
-| Delivery | Docker, Kubernetes, Terraform, GitHub Actions |
+| Delivery | Docker, GitHub Actions |
 
 ## Quick start
 
