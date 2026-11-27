@@ -6,7 +6,7 @@
 
 **Code:** [github.com/AloneRider-pixel/aegis](https://github.com/AloneRider-pixel/aegis) (reference platform; no public deployment)
 
-An incident-response reference prototype: a deterministic, rule-based LangGraph investigation over synthetic telemetry and runbooks, with human approval required before simulated remediation. The LLM provider setting is not wired into the investigation yet.
+An incident-response reference prototype: a rule-based LangGraph investigation (fixed graph logic, no LLM call) over synthetic telemetry; before a simulator scenario has populated telemetry, metric queries fall back to random values, so records can differ between runs and runbooks, with human approval required before simulated remediation. The LLM provider setting is not wired into the investigation yet.
 > **Demo data:** all evaluation fixtures and demo scenarios in this repository are synthetic and deterministic. They validate engineering behavior - state transitions, approval gating, offline retrieval contracts - and are not production model benchmarks.
 
 
@@ -60,7 +60,7 @@ graph TB
 | Layer | Technology |
 |---|---|
 | Backend | Python 3.12, FastAPI, SQLAlchemy, Alembic |
-| AI | LangGraph (deterministic investigation chain; LLM provider setting not wired) |
+| AI | LangGraph (rule-based investigation chain, random metric fallback without simulator data; LLM provider setting not wired) |
 | Retrieval | SQL ILIKE baseline; pgvector and sentence-transformers are intended, not wired into the current search endpoint |
 | Data | PostgreSQL 16, Redis 7 |
 | Frontend | React, Vite, Tailwind CSS |
